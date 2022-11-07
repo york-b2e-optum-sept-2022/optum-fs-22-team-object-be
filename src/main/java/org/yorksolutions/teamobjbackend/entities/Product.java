@@ -3,6 +3,7 @@ package org.yorksolutions.teamobjbackend.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.yorksolutions.teamobjbackend.dtos.ProductDTO;
 import org.yorksolutions.teamobjbackend.embeddables.Coupon;
 import org.yorksolutions.teamobjbackend.embeddables.DateRanged;
 
@@ -16,7 +17,10 @@ public class Product
 {
     @Id
     String id;
-
+    public String getId()
+    {
+        return id;
+    }
     @JsonIgnore
     @ElementCollection
     List<DateRanged<Double>> mapList;
@@ -39,10 +43,6 @@ public class Product
     @JsonProperty
     String description;
 
-    public String getId()
-    {
-        return id;
-    }
 
     @JsonProperty
     @ElementCollection
@@ -58,4 +58,37 @@ public class Product
     Double defaultPrice;
     @JsonProperty
     Double defaultMAP;
+
+    public void update(ProductDTO pdto)
+    {
+        if(pdto.productName != null)
+        {
+            this.productName = pdto.productName;
+        }
+        if(pdto.description != null)
+        {
+            this.description = pdto.description;
+        }
+        if(pdto.images != null)
+        {
+            this.images = pdto.images;
+        }
+        if(pdto.discontinued != null)
+        {
+            this.discontinued = pdto.discontinued;
+        }
+        if(pdto.startDate != null)
+        {
+            this.startDate = pdto.startDate;
+        }
+        if(pdto.defaultMAP != null)
+        {
+            this.defaultMAP = pdto.defaultMAP;
+        }
+        if(pdto.defaultPrice != null)
+        {
+            this.defaultPrice = pdto.defaultPrice;
+        }
+    }
+
 }

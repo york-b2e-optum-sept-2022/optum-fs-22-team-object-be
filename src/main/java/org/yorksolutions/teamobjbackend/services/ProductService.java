@@ -1,5 +1,7 @@
 package org.yorksolutions.teamobjbackend.services;
 
+import org.yorksolutions.teamobjbackend.dtos.ProductDTO;
+import org.yorksolutions.teamobjbackend.dtos.RequestDTO;
 import org.yorksolutions.teamobjbackend.embeddables.Coupon;
 import org.yorksolutions.teamobjbackend.embeddables.DateRanged;
 import org.yorksolutions.teamobjbackend.entities.Product;
@@ -11,6 +13,14 @@ public class ProductService
 {
 
     private ProductRepository productRepository;
+
+
+    public Product CreateProduct(ProductDTO dto)
+    {
+        Product p = new Product();
+        p.update(dto);
+        return p;
+    }
 
     public ProductService(ProductRepository productRepository)
     {
@@ -103,5 +113,8 @@ public class ProductService
         return null;
     }
 
-
+    private boolean verify(RequestDTO dto)
+    {
+        return false;
+    }
 }
