@@ -51,5 +51,5 @@ public class Product
     @JsonProperty
     Double defaultPrice;
     @JsonProperty
-    Double defaultMap;
+    Double defaultMAP;
 }
