@@ -17,6 +17,11 @@ public class Account
     @JsonProperty("PermissionLevel")
     AccountPermission permission;
 
+    public AccountPermission getPermission()
+    {
+        return permission;
+    }
+
     @JsonGetter("PermissionLevel")
     public String permissionAsString()
     {
