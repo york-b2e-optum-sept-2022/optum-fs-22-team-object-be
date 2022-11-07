@@ -15,6 +15,7 @@ import java.util.List;
 @Entity
 public class Product
 {
+    @JsonProperty
     @Id
     String id;
     public String getId()
@@ -49,6 +50,12 @@ public class Product
     List<String> images;
     @JsonProperty
     Boolean discontinued;
+
+    public Boolean getDiscontinued()
+    {
+        return discontinued;
+    }
+
     @JsonProperty
     @ElementCollection
     List<String> categories;
@@ -56,6 +63,12 @@ public class Product
     Long startDate;
     @JsonProperty
     Double defaultPrice;
+
+    public void setDiscontinued(Boolean discontinued)
+    {
+        this.discontinued = discontinued;
+    }
+
     @JsonProperty
     Double defaultMAP;
 
@@ -72,10 +85,6 @@ public class Product
         if(pdto.images != null)
         {
             this.images = pdto.images;
-        }
-        if(pdto.discontinued != null)
-        {
-            this.discontinued = pdto.discontinued;
         }
         if(pdto.startDate != null)
         {

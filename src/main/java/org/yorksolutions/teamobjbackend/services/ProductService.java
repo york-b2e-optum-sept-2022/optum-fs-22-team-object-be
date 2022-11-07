@@ -1,32 +1,64 @@
 package org.yorksolutions.teamobjbackend.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import org.yorksolutions.teamobjbackend.dtos.ProductDTO;
 import org.yorksolutions.teamobjbackend.dtos.RequestDTO;
 import org.yorksolutions.teamobjbackend.embeddables.Coupon;
 import org.yorksolutions.teamobjbackend.embeddables.DateRanged;
+import org.yorksolutions.teamobjbackend.entities.Account;
+import org.yorksolutions.teamobjbackend.entities.AccountPermission;
 import org.yorksolutions.teamobjbackend.entities.Product;
+import org.yorksolutions.teamobjbackend.repositories.AccountRepository;
 import org.yorksolutions.teamobjbackend.repositories.ProductRepository;
 
 import java.util.List;
+import java.util.Optional;
 
+
+@Service
 public class ProductService
 {
 
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
+    private final AccountRepository accountRepository;
 
-
-    public Product CreateProduct(ProductDTO dto)
-    {
-        Product p = new Product();
-        p.update(dto);
-        return p;
-    }
-
-    public ProductService(ProductRepository productRepository)
+    @Autowired
+    public ProductService(ProductRepository productRepository, AccountRepository accountRepository)
     {
         this.productRepository = productRepository;
+        this.accountRepository = accountRepository;
     }
 
+    public Product CreateProduct(ProductDTO dto) throws ResponseStatusException
+    {
+        verify(dto);
+        Product p = new Product();
+        p.update(dto);
+        this.productRepository.save(p);
+        return p;
+    }
+    public Product EditProduct(ProductDTO dto)
+    {
+        verify(dto);
+        Product p = GetProduct(dto);
+        p.update(dto);
+        this.productRepository.save(p);
+        return p;
+    }
+    public void DeleteProduct(ProductDTO dto)
+    {
+        verify(dto);
+        Product p = GetProduct(dto);
+        if(p.getDiscontinued())
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product already deleted");
+        }
+        p.setDiscontinued(true);
+
+    }
     //TODO:
     public void DeleteCoupon(String couponID)
     {
@@ -113,8 +145,25 @@ public class ProductService
         return null;
     }
 
-    private boolean verify(RequestDTO dto)
+    private void verify(RequestDTO dto) throws ResponseStatusException
     {
-        return false;
+        Optional<Account> acct = accountRepository.findById(dto.userID);
+        if(acct.isEmpty() || acct.get().getPermission() == AccountPermission.CUSTOMER)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Account id requesting this operation is either non-existent or has insufficient permissions");
+        }
+    }
+    private Product GetProduct(ProductDTO dto)
+    {
+        if(dto.id == null)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product id not given for editing");
+        }
+        Optional<Product> p = this.productRepository.findById(dto.id);
+        if(p.isEmpty())
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Did not find product with given id");
+        }
+        return p.get();
     }
 }

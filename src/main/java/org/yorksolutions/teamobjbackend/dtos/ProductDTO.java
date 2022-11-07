@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class ProductDTO extends RequestDTO
+public class ProductDTO extends ProductIDDTO
 {
     @JsonProperty
     public String productName;
@@ -12,8 +12,6 @@ public class ProductDTO extends RequestDTO
     public String description;
     @JsonProperty
     public List<String> images;
-    @JsonProperty
-    public Boolean discontinued;
     @JsonProperty
     public Long startDate;
     @JsonProperty
