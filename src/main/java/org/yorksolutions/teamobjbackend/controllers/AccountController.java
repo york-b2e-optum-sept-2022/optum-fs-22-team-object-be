@@ -59,5 +59,10 @@ public class AccountController
     {
         return this.accountService.GetAllAccounts(dto);
     }
+    @GetMapping("permission")
+    public String GetMyPermissionLevel(@RequestBody RequestDTO dto)
+    {
+        return this.accountService.GetPermissionLevel(dto);
+    }
 
 }

@@ -196,4 +196,9 @@ public class AccountService
         }
         return acc.get();
     }
+    public String GetPermissionLevel(RequestDTO dto) throws ResponseStatusException
+    {
+        Account c = GetRequesterAccount(dto);
+        return c.permissionAsString();
+    }
 }
