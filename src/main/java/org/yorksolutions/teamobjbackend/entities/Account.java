@@ -57,6 +57,12 @@ public class Account
     {
         return permission.name();
     }
+
+    public ProductOrder getCart()
+    {
+        return cart;
+    }
+
     @JsonSetter("PermissionLevel")
     public void permissionFromInteger(String en)
     {

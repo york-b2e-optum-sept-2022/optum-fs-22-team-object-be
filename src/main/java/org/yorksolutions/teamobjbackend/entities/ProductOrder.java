@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.HashMap;
 import java.util.Map;
 
 @Entity
@@ -27,6 +28,12 @@ public class ProductOrder
     Double total;
     @JsonProperty
     Long date;
+
+
+    public ProductOrder()
+    {
+        productsOrdered = new HashMap<>();
+    }
 
     public Map<String, Integer> getProductsOrdered()
     {
