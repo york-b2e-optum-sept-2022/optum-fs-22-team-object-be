@@ -2,6 +2,7 @@ package org.yorksolutions.teamobjbackend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.yorksolutions.teamobjbackend.dtos.CouponDTO;
 import org.yorksolutions.teamobjbackend.dtos.ProductDTO;
 import org.yorksolutions.teamobjbackend.entities.Product;
 import org.yorksolutions.teamobjbackend.services.ProductService;
@@ -33,6 +34,16 @@ public class ProductController
     public void DeleteProduct(@RequestBody ProductDTO productData)
     {
         this.productService.DeleteProduct(productData);
+    }
+    @PostMapping("create/coupon")
+    public void AddCoupon(@RequestBody CouponDTO dto)
+    {
+        this.productService.AddCoupon(dto);
+    }
+    @PostMapping("delete/coupon")
+    public void DeleteCoupon(@RequestBody CouponDTO dto)
+    {
+        this.productService.DeleteCoupon(dto);
     }
 
 }

@@ -16,6 +16,9 @@ import java.util.List;
 @Entity
 public class Product
 {
+
+
+
     @JsonProperty
     @Id
     String productID;
@@ -106,6 +109,46 @@ public class Product
         {
             this.defaultPrice = pdto.defaultPrice;
         }
+    }
+
+    public List<DateRanged<Double>> getMapList()
+    {
+        return mapList;
+    }
+
+    public List<DateRanged<Double>> getPricesList()
+    {
+        return pricesList;
+    }
+
+    public List<DateRanged<Double>> getSalesList()
+    {
+        return salesList;
+    }
+
+    public List<Coupon> getCouponList()
+    {
+        return couponList;
+    }
+
+    public void setMapList(List<DateRanged<Double>> mapList)
+    {
+        this.mapList = mapList;
+    }
+
+    public void setPricesList(List<DateRanged<Double>> pricesList)
+    {
+        this.pricesList = pricesList;
+    }
+
+    public void setSalesList(List<DateRanged<Double>> salesList)
+    {
+        this.salesList = salesList;
+    }
+
+    public void setCouponList(List<Coupon>couponList)
+    {
+        this.couponList = couponList;
     }
 
 }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.yorksolutions.teamobjbackend.dtos.CouponDTO;
 import org.yorksolutions.teamobjbackend.dtos.ProductDTO;
 import org.yorksolutions.teamobjbackend.dtos.RequestDTO;
 import org.yorksolutions.teamobjbackend.embeddables.Coupon;
@@ -62,14 +63,44 @@ public class ProductService
 
     }
     //TODO:
-    public void DeleteCoupon(String couponID)
+    public void DeleteCoupon(CouponDTO dto)
     {
-
+        Coupon c = new Coupon();
+        c.code = dto.code;
+        Iterable<Product> relevantProducts = this.productRepository.findAllByCouponListContaining(c);
+        int numChanged = 0;
+        for(Product p : relevantProducts)
+        {
+            p.getCouponList().removeIf( (coup)->coup.equals(c));
+            numChanged++;
+        }
+        if(numChanged == 0)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No products containing that coupon code were found");
+        }
+        this.productRepository.saveAll(relevantProducts);
+        return;
     }
     //TODO
-    public void AddCoupon(Double salePercentage, List<String> productIDs, Long startDate, Long endDate)
+    public void AddCoupon(CouponDTO dto)
     {
+        Coupon c = new Coupon();
+        c.startDate = dto.startDate;
+        c.endDate = dto.endDate;
+        c.sale = dto.sale;
+        c.code = dto.code;
 
+        Iterable<Product> relevantProducts = this.productRepository.findAllByProductIDIn(dto.productIDs);
+        for(Product p : relevantProducts)
+        {
+            //if any product already has that coupon say "oh no don't do that please"
+            if(p.getCouponList().contains(c))
+            {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,"Coupon code already in use");
+            }
+            p.getCouponList().add(c);
+        }
+        this.productRepository.saveAll(relevantProducts);
     }
 
     //TODO:

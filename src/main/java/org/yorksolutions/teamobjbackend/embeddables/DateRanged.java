@@ -3,24 +3,25 @@ package org.yorksolutions.teamobjbackend.embeddables;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
 
 
 @Embeddable
 public class DateRanged<T>
 {
     @JsonProperty
-    public Double startDate;
+    public Long startDate;
     @JsonProperty
-    public Double endDate;
+    public Long endDate;
     @JsonProperty
-    public T t;
+    public T item;
 
 
     public boolean Overlaps(DateRanged<T> other)
     {
         return startDate <= other.endDate && endDate >= other.startDate;
     }
-    public boolean InRange(Double date)
+    public boolean InRange(Long date)
     {
         return date >= startDate && date <= endDate;
     }
