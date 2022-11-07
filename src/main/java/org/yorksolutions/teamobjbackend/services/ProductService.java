@@ -16,6 +16,7 @@ import org.yorksolutions.teamobjbackend.repositories.AccountRepository;
 import org.yorksolutions.teamobjbackend.repositories.ProductRepository;
 import org.yorksolutions.teamobjbackend.utils.YorkUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,17 +68,16 @@ public class ProductService
     {
         Coupon c = new Coupon();
         c.code = dto.code;
-        Iterable<Product> relevantProducts = this.productRepository.findAllByCouponListContaining(c);
-        int numChanged = 0;
-        for(Product p : relevantProducts)
-        {
-            p.getCouponList().removeIf( (coup)->coup.equals(c));
-            numChanged++;
-        }
-        if(numChanged == 0)
+        List<Product> relevantProducts = IterableToList(this.productRepository.findAllWithCouponCode(c.code));
+        if(relevantProducts.size() == 0)
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No products containing that coupon code were found");
         }
+        for(Product p : relevantProducts)
+        {
+            p.getCouponList().removeIf( (coup)->coup.equals(c));
+        }
+
         this.productRepository.saveAll(relevantProducts);
         return;
     }
@@ -90,7 +90,11 @@ public class ProductService
         c.sale = dto.sale;
         c.code = dto.code;
 
-        Iterable<Product> relevantProducts = this.productRepository.findAllByProductIDIn(dto.productIDs);
+        List<Product> relevantProducts = IterableToList(this.productRepository.findAllByProductIDIn(dto.productIDs));
+        if(relevantProducts.size() != dto.productIDs.size())
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Some product IDs were not found in database");
+        }
         for(Product p : relevantProducts)
         {
             //if any product already has that coupon say "oh no don't do that please"
@@ -100,6 +104,7 @@ public class ProductService
             }
             p.getCouponList().add(c);
         }
+
         this.productRepository.saveAll(relevantProducts);
     }
 
@@ -199,4 +204,13 @@ public class ProductService
         }
         return p.get();
     }
+
+    private static <T> List<T> IterableToList(Iterable<T> it)
+    {
+        ArrayList<T> arrayList = new ArrayList<>();
+        it.forEach(arrayList::add);
+        return arrayList;
+    }
+
+
 }

@@ -40,7 +40,7 @@ public class ProductController
     {
         this.productService.AddCoupon(dto);
     }
-    @PostMapping("delete/coupon")
+    @DeleteMapping("delete/coupon")
     public void DeleteCoupon(@RequestBody CouponDTO dto)
     {
         this.productService.DeleteCoupon(dto);
