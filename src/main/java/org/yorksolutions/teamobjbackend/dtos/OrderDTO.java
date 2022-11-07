@@ -5,7 +5,7 @@ import org.yorksolutions.teamobjbackend.entities.ProductOrder;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OrderDTO
+public class OrderDTO extends RequestDTO
 {
     public Map<String,Integer> productsOrdered = new HashMap<>();
     public double total;
