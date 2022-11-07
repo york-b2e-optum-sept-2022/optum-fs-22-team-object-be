@@ -39,3 +39,5 @@ out/
 /database/database
 
 /.idea/httpRequests
+
+tests.http
