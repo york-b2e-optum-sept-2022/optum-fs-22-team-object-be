@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.ElementCollection;
 import java.util.List;
 
-public class ProductDTO
+public class ProductDTO extends RequestDTO
 {
     @JsonProperty
     public String productName;
@@ -16,7 +16,7 @@ public class ProductDTO
     @JsonProperty
     public Boolean discontinued;
     @JsonProperty
-    public Double startDate;
+    public Long startDate;
     @JsonProperty
     public Double defaultPrice;
     @JsonProperty
