@@ -1,9 +1,15 @@
 package org.yorksolutions.teamobjbackend.services;
 
+import org.yorksolutions.teamobjbackend.embeddables.Coupon;
+import org.yorksolutions.teamobjbackend.embeddables.DateRanged;
+import org.yorksolutions.teamobjbackend.entities.Product;
+
 import java.util.List;
 
 public class ProductService
 {
+
+
 
 
     //TODO:
@@ -57,4 +63,40 @@ public class ProductService
     {
 
     }
+
+
+
+    /*
+    GETS
+     */
+    //TODO
+    public List<Product> GetProductsInCategory(String category)
+    {
+        return null;
+    }
+    //TODO
+    public List<DateRanged<Double>> GetMAPRanges(String productID)
+    {
+        return null;
+    }
+    //TODO
+    public List<DateRanged<Double>> GetSaleRanges(String productID)
+    {
+        return null;
+    }
+    public List<DateRanged<Double>> GetPriceRanges(String productID)
+    {
+        return null;
+    }
+    //TODO
+    public List<String> GetCategories(String productID)
+    {
+        return null;
+    }
+    public List<Coupon> GetCoupons(String productID)
+    {
+        return null;
+    }
+
+
 }
