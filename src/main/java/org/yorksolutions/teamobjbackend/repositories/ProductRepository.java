@@ -10,5 +10,5 @@ import java.util.Set;
 @Repository
 public interface ProductRepository extends CrudRepository<Product,String>
 {
-    public Iterable<Product> findAllByIdIn(Set<String> productIDs);
+    public Iterable<Product> findAllByProductIDIn(Set<String> productIDs);
 }

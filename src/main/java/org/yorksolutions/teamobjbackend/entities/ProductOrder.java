@@ -47,11 +47,11 @@ public class ProductOrder
 
     public void RemoveProduct(Product prod)
     {
-        productsOrdered.remove(prod.id);
+        productsOrdered.remove(prod.productID);
     }
     public void SetProduct(Product prod, Integer number)
     {
-        productsOrdered.put(prod.id,number);
+        productsOrdered.put(prod.productID,number);
     }
 
 
