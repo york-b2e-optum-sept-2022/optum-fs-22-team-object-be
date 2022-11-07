@@ -18,6 +18,10 @@ public class Account
     @JsonProperty("PermissionLevel")
     AccountPermission permission;
 
+    public Account()
+    {
+        this.pastOrders = new ArrayList<>();
+    }
     public Account(String id, AccountPermission permission, String email, String password)
     {
         this.id = id;
