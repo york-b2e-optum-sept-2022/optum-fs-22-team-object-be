@@ -141,6 +141,16 @@ public class AccountService
     public void DeleteAccount(AccountDTO dto) throws ResponseStatusException
     {
         Account requester = GetRequesterAccount(dto);
+        if(dto.email == null && requester.getPermission() == AccountPermission.ADMIN)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You cannot delete your own account as an admin");
+        }
+        //user deletes self
+        else if(dto.email == null)
+        {
+            this.accountRepository.delete(requester);
+            return;
+        }
         Optional<Account> targetAccount = this.accountRepository.findAccountByEmail(dto.email);
 
         if(targetAccount.isEmpty())
