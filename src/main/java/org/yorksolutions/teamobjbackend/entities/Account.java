@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,21 +18,21 @@ public class Account
     @JsonProperty("PermissionLevel")
     AccountPermission permission;
 
+    public Account(String id, AccountPermission permission, String email, String password)
+    {
+        this.id = id;
+        this.permission = permission;
+        this.email = email;
+        this.password = password;
+        this.pastOrders = new ArrayList<>();
+        this.cart = new ProductOrder();
+    }
+
     public AccountPermission getPermission()
     {
         return permission;
     }
 
-    @JsonGetter("PermissionLevel")
-    public String permissionAsString()
-    {
-        return permission.name();
-    }
-    @JsonSetter("PermissionLevel")
-    public void permissionFromInteger(String en)
-    {
-        this.permission = AccountPermission.valueOf(en);
-    }
 
     @Column(unique = true)
     @JsonProperty
@@ -47,5 +48,14 @@ public class Account
     @OneToOne
     ProductOrder cart;
 
-
+    @JsonGetter("PermissionLevel")
+    public String permissionAsString()
+    {
+        return permission.name();
+    }
+    @JsonSetter("PermissionLevel")
+    public void permissionFromInteger(String en)
+    {
+        this.permission = AccountPermission.valueOf(en);
+    }
 }
