@@ -34,6 +34,11 @@ public class ProductOrder
     {
         productsOrdered = new HashMap<>();
     }
+    public ProductOrder(String id)
+    {
+        this.id = id;
+        productsOrdered = new HashMap<>();
+    }
 
     public Map<String, Integer> getProductsOrdered()
     {

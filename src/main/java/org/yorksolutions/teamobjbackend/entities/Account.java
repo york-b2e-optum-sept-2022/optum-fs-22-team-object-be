@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.yorksolutions.teamobjbackend.utils.YorkUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class Account
         this.email = email;
         this.password = password;
         this.pastOrders = new ArrayList<>();
-        this.cart = new ProductOrder();
+        this.cart = new ProductOrder(YorkUtils.GenerateUUID());
     }
 
     public AccountPermission getPermission()
