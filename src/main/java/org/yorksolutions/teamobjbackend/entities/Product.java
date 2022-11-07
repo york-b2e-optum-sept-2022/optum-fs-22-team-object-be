@@ -35,6 +35,8 @@ public class Product
 
 
     @JsonProperty
+    String productName;
+    @JsonProperty
     String description;
     @JsonProperty
     @ElementCollection
