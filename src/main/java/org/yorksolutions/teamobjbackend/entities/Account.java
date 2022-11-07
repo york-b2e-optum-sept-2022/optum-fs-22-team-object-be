@@ -16,6 +16,11 @@ public class Account
     @Id
     String id;
 
+    public String getId()
+    {
+        return id;
+    }
+
     @JsonProperty("PermissionLevel")
     AccountPermission permission;
 
@@ -23,6 +28,27 @@ public class Account
     {
         this.pastOrders = new ArrayList<>();
     }
+
+    public void setPermission(AccountPermission permission)
+    {
+        this.permission = permission;
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
+
+    public String getPassword()
+    {
+        return password;
+    }
+
     public Account(String id, AccountPermission permission, String email, String password)
     {
         this.id = id;
@@ -33,6 +59,7 @@ public class Account
         this.cart = new ProductOrder(YorkUtils.GenerateUUID());
     }
 
+    @JsonProperty
     public AccountPermission getPermission()
     {
         return permission;
