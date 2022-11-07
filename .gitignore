@@ -40,4 +40,6 @@ out/
 
 /.idea/httpRequests
 
-tests.http
+httptests/account-tests.http
+
+/httptests/*.http
