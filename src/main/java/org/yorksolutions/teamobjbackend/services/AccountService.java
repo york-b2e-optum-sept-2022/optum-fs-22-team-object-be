@@ -46,12 +46,12 @@ public class AccountService
             {
                 if(dto.userID == null)
                 {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Account creation of high permission must be made by administrator");
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Account creation of high permission must be made by administrator");
                 }
                 var creator = accountRepository.findById(dto.userID);
                 if(creator.isEmpty() || creator.get().getPermission() != AccountPermission.ADMIN)
                 {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Account creation of high permission must be made by administrator");
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Account creation of high permission must be made by administrator");
                 }
                 permissionLevel = requestedPerm;
             }
@@ -84,8 +84,15 @@ public class AccountService
             throw new ResponseStatusException(HttpStatus.CONFLICT,"Email already taken");
         }
 
-        acc.setEmail(dto.email);
-        acc.setPassword(dto.password);
+        if(dto.email != null)
+        {
+            acc.setEmail(dto.email);
+        }
+        if(dto.password != null)
+        {
+            acc.setPassword(dto.password);
+
+        }
         this.accountRepository.save(acc);
 
         return acc.getId();
@@ -113,8 +120,14 @@ public class AccountService
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid permission value");
             }
         }
-        changeAct.setEmail(dto.email);
-        changeAct.setPassword(dto.password);
+        if(dto.email != null)
+        {
+            changeAct.setEmail(dto.email);
+        }
+        if(dto.password != null)
+        {
+            changeAct.setPassword(dto.password);
+        }
         changeAct.setPermission(permission);
 
         this.accountRepository.save(changeAct);
