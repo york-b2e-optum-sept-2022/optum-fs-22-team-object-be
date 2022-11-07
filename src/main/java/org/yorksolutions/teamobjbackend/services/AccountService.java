@@ -15,6 +15,7 @@ import org.yorksolutions.teamobjbackend.repositories.ProductOrderRepository;
 import org.yorksolutions.teamobjbackend.repositories.ProductRepository;
 import org.yorksolutions.teamobjbackend.utils.YorkUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 
 @Service
@@ -31,6 +32,16 @@ public class AccountService
         this.productOrderRepository = productOrderRepository;
         this.productRepository = productRepository;
     }
+
+    @PostConstruct
+    public void init()
+    {
+        if(this.productRepository.count() == 0)
+        {
+            Account account = new Account(YorkUtils.GenerateUUID(),AccountPermission.ADMIN,"admin","admin");
+        }
+    }
+
 
 
     public String AttemptRegister(AccountDTO dto) throws ResponseStatusException
