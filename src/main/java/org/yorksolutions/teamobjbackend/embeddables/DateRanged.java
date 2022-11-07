@@ -9,9 +9,9 @@ import javax.persistence.Embeddable;
 public class DateRanged<T>
 {
     @JsonProperty
-    public double startDate;
+    public Double startDate;
     @JsonProperty
-    public double endDate;
+    public Double endDate;
     @JsonProperty
     public T t;
 
@@ -19,5 +19,9 @@ public class DateRanged<T>
     public boolean Overlaps(DateRanged<T> other)
     {
         return startDate <= other.endDate && endDate >= other.startDate;
+    }
+    public boolean InRange(Double date)
+    {
+        return date >= startDate && date <= endDate;
     }
 }
