@@ -36,9 +36,11 @@ public class AccountService
     @PostConstruct
     public void init()
     {
-        if(this.productRepository.count() == 0)
+        if(this.accountRepository.count() == 0)
         {
             Account account = new Account(YorkUtils.GenerateUUID(),AccountPermission.ADMIN,"admin","admin");
+            this.productOrderRepository.save(account.getCart());
+            this.accountRepository.save(account);
         }
     }
 
