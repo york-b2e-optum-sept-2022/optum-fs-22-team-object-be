@@ -1,4 +1,4 @@
-package org.yorksolutions.teamobjbackend.dtos.AccountInfo;
+package org.yorksolutions.teamobjbackend.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
