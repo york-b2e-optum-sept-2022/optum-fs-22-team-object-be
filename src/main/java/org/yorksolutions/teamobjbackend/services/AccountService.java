@@ -231,11 +231,11 @@ public class AccountService
             allProductIDs.addAll(po.getProductsOrdered().keySet());
         }
         //Essentially collect all product ID strings for a batched repository request
-        Iterable<Product> correspondingProducts = this.productRepository.findAllByIdIn(allProductIDs);
+        Iterable<Product> correspondingProducts = this.productRepository.findAllByProductIDIn(allProductIDs);
         HashMap<String, Product> idProductMap = new HashMap<>();
         for(Product p : correspondingProducts)
         {
-            idProductMap.put(p.getId(),p);
+            idProductMap.put(p.getProductID(),p);
         }
         List<OrderDTO> orderHistory = new ArrayList<>();
         for(ProductOrder po : pastOrders)
@@ -272,11 +272,11 @@ public class AccountService
     public OrderDTO GetCart(RequestDTO dto) throws ResponseStatusException
     {
         Account acc = GetRequesterAccount(dto);
-        Iterable<Product> correspondingProducts = this.productRepository.findAllByIdIn(acc.getCart().getProductsOrdered().keySet());
+        Iterable<Product> correspondingProducts = this.productRepository.findAllByProductIDIn(acc.getCart().getProductsOrdered().keySet());
         HashMap<String, Product> prods = new HashMap<>();
         for(Product p : correspondingProducts)
         {
-            prods.put(p.getId(),p);
+            prods.put(p.getProductID(),p);
         }
         return OrderDTO.FromProductOrder(acc.getCart(),prods);
     }

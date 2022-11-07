@@ -5,5 +5,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ProductIDDTO extends RequestDTO
 {
     @JsonProperty
-    public String id;
+    public String productID;
 }

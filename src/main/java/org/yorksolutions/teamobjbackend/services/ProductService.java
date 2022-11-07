@@ -13,6 +13,7 @@ import org.yorksolutions.teamobjbackend.entities.AccountPermission;
 import org.yorksolutions.teamobjbackend.entities.Product;
 import org.yorksolutions.teamobjbackend.repositories.AccountRepository;
 import org.yorksolutions.teamobjbackend.repositories.ProductRepository;
+import org.yorksolutions.teamobjbackend.utils.YorkUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class ProductService
     public Product CreateProduct(ProductDTO dto) throws ResponseStatusException
     {
         verify(dto);
-        Product p = new Product();
+        Product p = new Product(YorkUtils.GenerateUUID());
         p.update(dto);
         this.productRepository.save(p);
         return p;
@@ -57,6 +58,7 @@ public class ProductService
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product already deleted");
         }
         p.setDiscontinued(true);
+        this.productRepository.save(p);
 
     }
     //TODO:
@@ -155,11 +157,11 @@ public class ProductService
     }
     private Product GetProduct(ProductDTO dto)
     {
-        if(dto.id == null)
+        if(dto.productID == null)
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product id not given for editing");
         }
-        Optional<Product> p = this.productRepository.findById(dto.id);
+        Optional<Product> p = this.productRepository.findById(dto.productID);
         if(p.isEmpty())
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Did not find product with given id");

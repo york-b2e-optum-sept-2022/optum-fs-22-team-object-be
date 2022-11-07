@@ -19,9 +19,20 @@ public class ProductController
         this.productService = productService;
     }
 
-    @PostMapping
+    @PostMapping("create")
     public Product CreateProduct(@RequestBody ProductDTO productData)
     {
         return this.productService.CreateProduct(productData);
     }
+    @PutMapping("edit")
+    public Product EditProduct(@RequestBody ProductDTO productData)
+    {
+        return this.productService.EditProduct(productData);
+    }
+    @DeleteMapping("delete")
+    public void DeleteProduct(@RequestBody ProductDTO productData)
+    {
+        this.productService.DeleteProduct(productData);
+    }
+
 }

@@ -10,6 +10,7 @@ import org.yorksolutions.teamobjbackend.embeddables.DateRanged;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,10 +18,10 @@ public class Product
 {
     @JsonProperty
     @Id
-    String id;
-    public String getId()
+    String productID;
+    public String getProductID()
     {
-        return id;
+        return productID;
     }
     @JsonIgnore
     @ElementCollection
@@ -43,13 +44,20 @@ public class Product
     String productName;
     @JsonProperty
     String description;
+    protected Product()
+    {
 
+    }
+    public Product(String id)
+    {
+        this.productID = id;
+    }
 
     @JsonProperty
     @ElementCollection
     List<String> images;
     @JsonProperty
-    Boolean discontinued;
+    Boolean discontinued = false;
 
     public Boolean getDiscontinued()
     {
@@ -58,7 +66,7 @@ public class Product
 
     @JsonProperty
     @ElementCollection
-    List<String> categories;
+    List<String> categories = new ArrayList<>();
     @JsonProperty
     Long startDate;
     @JsonProperty
