@@ -33,6 +33,7 @@ public class Account
         this.permission = AccountPermission.valueOf(en);
     }
 
+    @Column(unique = true)
     @JsonProperty
     String email;
 
