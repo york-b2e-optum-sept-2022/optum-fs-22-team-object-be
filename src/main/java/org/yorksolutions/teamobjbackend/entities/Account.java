@@ -50,6 +50,8 @@ public class Account
     @OneToMany
     List<ProductOrder> pastOrders;
 
+
+    @JsonIgnore
     @OneToOne
     ProductOrder cart;
 
