@@ -3,9 +3,7 @@ package org.yorksolutions.teamobjbackend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.yorksolutions.teamobjbackend.dtos.AccountDTO;
-import org.yorksolutions.teamobjbackend.dtos.AdminAccountChangeDTO;
-import org.yorksolutions.teamobjbackend.dtos.RequestDTO;
+import org.yorksolutions.teamobjbackend.dtos.*;
 import org.yorksolutions.teamobjbackend.entities.Account;
 import org.yorksolutions.teamobjbackend.services.AccountService;
 
@@ -63,6 +61,26 @@ public class AccountController
     public String GetMyPermissionLevel(@RequestBody RequestDTO dto)
     {
         return this.accountService.GetPermissionLevel(dto);
+    }
+    @PostMapping("checkout")
+    public void Checkout(@RequestBody RequestDTO dto)
+    {
+        this.accountService.Checkout(dto);
+    }
+    @GetMapping("orders")
+    public List<OrderDTO> GetOrderHistory(@RequestBody RequestDTO dto)
+    {
+        return this.accountService.GetHistory(dto);
+    }
+    @PutMapping("cart")
+    public void ChangeCart(@RequestBody CartChangeDTO dto)
+    {
+        this.accountService.AddToCart(dto);
+    }
+    @GetMapping("cart")
+    public OrderDTO GetCart(@RequestBody RequestDTO dto)
+    {
+        return this.accountService.GetCart(dto);
     }
 
 }

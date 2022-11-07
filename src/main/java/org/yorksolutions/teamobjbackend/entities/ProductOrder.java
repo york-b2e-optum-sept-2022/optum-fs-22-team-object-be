@@ -32,7 +32,7 @@ public class ProductOrder
 
     public ProductOrder()
     {
-        productsOrdered = new HashMap<>();
+            productsOrdered = new HashMap<>();
     }
     public ProductOrder(String id)
     {
@@ -40,15 +40,22 @@ public class ProductOrder
         productsOrdered = new HashMap<>();
     }
 
-    public Map<String, Integer> getProductsOrdered()
+    public Map<String,Integer> getProductsOrdered()
     {
         return productsOrdered;
     }
 
-    public void setProductsOrdered(Map<String, Integer> productsOrdered)
+    public void RemoveProduct(Product prod)
     {
-        this.productsOrdered = productsOrdered;
+        productsOrdered.remove(prod.id);
     }
+    public void SetProduct(Product prod, Integer number)
+    {
+        productsOrdered.put(prod.id,number);
+    }
+
+
+
 
     public String getId()
     {

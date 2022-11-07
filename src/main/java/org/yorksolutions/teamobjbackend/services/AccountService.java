@@ -4,31 +4,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.yorksolutions.teamobjbackend.dtos.AccountDTO;
-import org.yorksolutions.teamobjbackend.dtos.AdminAccountChangeDTO;
-import org.yorksolutions.teamobjbackend.dtos.RequestDTO;
+import org.yorksolutions.teamobjbackend.dtos.*;
 import org.yorksolutions.teamobjbackend.entities.Account;
 import org.yorksolutions.teamobjbackend.entities.AccountPermission;
+import org.yorksolutions.teamobjbackend.entities.Product;
+import org.yorksolutions.teamobjbackend.entities.ProductOrder;
 import org.yorksolutions.teamobjbackend.repositories.AccountRepository;
 import org.yorksolutions.teamobjbackend.repositories.ProductOrderRepository;
+import org.yorksolutions.teamobjbackend.repositories.ProductRepository;
 import org.yorksolutions.teamobjbackend.utils.YorkUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AccountService
 {
     private AccountRepository accountRepository;
     private ProductOrderRepository productOrderRepository;
+    private ProductRepository productRepository;
 
     @Autowired
-    public AccountService(AccountRepository accountRepository, ProductOrderRepository productOrderRepository)
+    public AccountService(AccountRepository accountRepository, ProductOrderRepository productOrderRepository, ProductRepository productRepository)
     {
         this.accountRepository = accountRepository;
         this.productOrderRepository = productOrderRepository;
+        this.productRepository = productRepository;
     }
+
 
     public String AttemptRegister(AccountDTO dto) throws ResponseStatusException
     {
@@ -200,5 +202,81 @@ public class AccountService
     {
         Account c = GetRequesterAccount(dto);
         return c.permissionAsString();
+    }
+    public void Checkout(RequestDTO dto) throws ResponseStatusException
+    {
+        Account acc = GetRequesterAccount(dto);
+        var cart = acc.getCart();
+        if(cart.getProductsOrdered().size() == 0)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Cannot checkout with 0 items");
+        }
+        cart.setTotal(-1.0);
+        cart.setDate(System.currentTimeMillis());
+        acc.getPastOrders().add(cart);
+        //save old cart, add to list, make new cart
+        productOrderRepository.save(cart);
+        acc.newCart();
+        productOrderRepository.save(acc.getCart());
+        accountRepository.save(acc);
+    }
+    public List<OrderDTO> GetHistory(RequestDTO dto) throws ResponseStatusException
+    {
+        Account acc = GetRequesterAccount(dto);
+        Set<String> allProductIDs = new HashSet<>();
+        var pastOrders = acc.getPastOrders();
+        for(ProductOrder po : pastOrders)
+        {
+            allProductIDs.addAll(po.getProductsOrdered().keySet());
+        }
+        //Essentially collect all product ID strings for a batched repository request
+        Iterable<Product> correspondingProducts = this.productRepository.findAllByIdIn(allProductIDs);
+        HashMap<String, Product> idProductMap = new HashMap<>();
+        for(Product p : correspondingProducts)
+        {
+            idProductMap.put(p.getId(),p);
+        }
+        List<OrderDTO> orderHistory = new ArrayList<>();
+        for(ProductOrder po : pastOrders)
+        {
+            orderHistory.add(OrderDTO.FromProductOrder(po,idProductMap));
+        }
+        return orderHistory;
+
+    }
+
+    public void AddToCart(CartChangeDTO dto) throws ResponseStatusException
+    {
+        Account acc = GetRequesterAccount(dto);
+        Optional<Product> prod = productRepository.findById(dto.productID);
+        if(prod.isEmpty())
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find product with that ID");
+        }
+        if(dto.number < 0)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot have negative number of products");
+        }
+        if(dto.number == 0)
+        {
+            acc.getCart().RemoveProduct(prod.get());
+        }
+        else
+        {
+            acc.getCart().SetProduct(prod.get(),dto.number);
+        }
+        this.productOrderRepository.save(acc.getCart());
+        this.accountRepository.save(acc);
+    }
+    public OrderDTO GetCart(RequestDTO dto) throws ResponseStatusException
+    {
+        Account acc = GetRequesterAccount(dto);
+        Iterable<Product> correspondingProducts = this.productRepository.findAllByIdIn(acc.getCart().getProductsOrdered().keySet());
+        HashMap<String, Product> prods = new HashMap<>();
+        for(Product p : correspondingProducts)
+        {
+            prods.put(p.getId(),p);
+        }
+        return OrderDTO.FromProductOrder(acc.getCart(),prods);
     }
 }

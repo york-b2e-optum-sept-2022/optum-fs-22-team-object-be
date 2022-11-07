@@ -38,6 +38,12 @@ public class Product
     String productName;
     @JsonProperty
     String description;
+
+    public String getId()
+    {
+        return id;
+    }
+
     @JsonProperty
     @ElementCollection
     List<String> images;

@@ -56,7 +56,7 @@ public class Account
         this.email = email;
         this.password = password;
         this.pastOrders = new ArrayList<>();
-        this.cart = new ProductOrder(YorkUtils.GenerateUUID());
+        newCart();
     }
 
     @JsonProperty
@@ -65,6 +65,11 @@ public class Account
         return permission;
     }
 
+
+    public List<ProductOrder> getPastOrders()
+    {
+        return pastOrders;
+    }
 
     @Column(unique = true)
     @JsonProperty
@@ -97,5 +102,10 @@ public class Account
     public void permissionFromInteger(String en)
     {
         this.permission = AccountPermission.valueOf(en);
+    }
+
+    public void newCart()
+    {
+        cart = new ProductOrder(YorkUtils.GenerateUUID());
     }
 }
