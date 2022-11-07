@@ -1,5 +1,7 @@
 package org.yorksolutions.teamobjbackend.dtos.AccountInfo;
 
+import org.yorksolutions.teamobjbackend.dtos.RequestDTO;
+
 public class AccountDTO extends RequestDTO
 {
     public String email;

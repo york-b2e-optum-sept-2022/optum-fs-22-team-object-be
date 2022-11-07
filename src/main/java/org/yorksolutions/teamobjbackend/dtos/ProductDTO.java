@@ -1,7 +1,6 @@
 package org.yorksolutions.teamobjbackend.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.yorksolutions.teamobjbackend.dtos.AccountInfo.RequestDTO;
 
 import java.util.List;
 

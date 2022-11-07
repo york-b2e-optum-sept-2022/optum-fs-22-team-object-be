@@ -3,14 +3,19 @@ package org.yorksolutions.teamobjbackend.services;
 import org.yorksolutions.teamobjbackend.embeddables.Coupon;
 import org.yorksolutions.teamobjbackend.embeddables.DateRanged;
 import org.yorksolutions.teamobjbackend.entities.Product;
+import org.yorksolutions.teamobjbackend.repositories.ProductRepository;
 
 import java.util.List;
 
 public class ProductService
 {
 
+    private ProductRepository productRepository;
 
-
+    public ProductService(ProductRepository productRepository)
+    {
+        this.productRepository = productRepository;
+    }
 
     //TODO:
     public void DeleteCoupon(String couponID)
