@@ -47,6 +47,9 @@ public class Product
     @ElementCollection
     List<String> categories;
     @JsonProperty
-    double startDate;
-
+    Double startDate;
+    @JsonProperty
+    Double defaultPrice;
+    @JsonProperty
+    Double defaultMap;
 }
