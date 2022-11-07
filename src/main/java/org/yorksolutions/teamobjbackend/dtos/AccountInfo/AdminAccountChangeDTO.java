@@ -1,4 +1,4 @@
-package org.yorksolutions.teamobjbackend.dtos;
+package org.yorksolutions.teamobjbackend.dtos.AccountInfo;
 
 public class AdminAccountChangeDTO extends AccountDTO
 {

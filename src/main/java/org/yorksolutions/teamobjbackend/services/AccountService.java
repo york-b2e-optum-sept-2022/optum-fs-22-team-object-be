@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.yorksolutions.teamobjbackend.dtos.*;
+import org.yorksolutions.teamobjbackend.dtos.AccountInfo.*;
 import org.yorksolutions.teamobjbackend.entities.Account;
 import org.yorksolutions.teamobjbackend.entities.AccountPermission;
 import org.yorksolutions.teamobjbackend.entities.Product;

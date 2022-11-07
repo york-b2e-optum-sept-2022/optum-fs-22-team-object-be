@@ -3,7 +3,7 @@ package org.yorksolutions.teamobjbackend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.yorksolutions.teamobjbackend.dtos.*;
+import org.yorksolutions.teamobjbackend.dtos.AccountInfo.*;
 import org.yorksolutions.teamobjbackend.entities.Account;
 import org.yorksolutions.teamobjbackend.services.AccountService;
 

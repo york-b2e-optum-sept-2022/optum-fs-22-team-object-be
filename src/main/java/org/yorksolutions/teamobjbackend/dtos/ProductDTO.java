@@ -1,8 +1,8 @@
 package org.yorksolutions.teamobjbackend.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.yorksolutions.teamobjbackend.dtos.AccountInfo.RequestDTO;
 
-import javax.persistence.ElementCollection;
 import java.util.List;
 
 public class ProductDTO extends RequestDTO

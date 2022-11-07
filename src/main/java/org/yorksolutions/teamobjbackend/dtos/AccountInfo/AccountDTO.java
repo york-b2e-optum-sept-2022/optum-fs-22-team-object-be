@@ -1,6 +1,4 @@
-package org.yorksolutions.teamobjbackend.dtos;
-
-import org.yorksolutions.teamobjbackend.entities.AccountPermission;
+package org.yorksolutions.teamobjbackend.dtos.AccountInfo;
 
 public class AccountDTO extends RequestDTO
 {
