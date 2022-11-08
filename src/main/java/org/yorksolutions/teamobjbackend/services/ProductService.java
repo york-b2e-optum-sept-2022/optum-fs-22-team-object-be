@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.yorksolutions.teamobjbackend.dtos.CategoryDTO;
-import org.yorksolutions.teamobjbackend.dtos.CouponDTO;
-import org.yorksolutions.teamobjbackend.dtos.ProductDTO;
-import org.yorksolutions.teamobjbackend.dtos.RequestDTO;
+import org.yorksolutions.teamobjbackend.dtos.*;
 import org.yorksolutions.teamobjbackend.embeddables.Coupon;
 import org.yorksolutions.teamobjbackend.embeddables.DateRanged;
 import org.yorksolutions.teamobjbackend.entities.Account;
@@ -44,7 +41,7 @@ public class ProductService
         this.productRepository.save(p);
         return p;
     }
-    public Product EditProduct(ProductDTO dto)
+    public Product EditProduct(ProductDTO dto) throws ResponseStatusException
     {
         verify(dto);
         Product p = GetProduct(dto);
@@ -52,7 +49,7 @@ public class ProductService
         this.productRepository.save(p);
         return p;
     }
-    public void DeleteProduct(ProductDTO dto)
+    public void DeleteProduct(ProductDTO dto) throws ResponseStatusException
     {
         verify(dto);
         Product p = GetProduct(dto);
@@ -65,7 +62,7 @@ public class ProductService
 
     }
 
-    public void DeleteCoupon(CouponDTO dto)
+    public void DeleteCoupon(CouponDTO dto) throws ResponseStatusException
     {
         verify(dto);
         Coupon c = new Coupon();
@@ -83,7 +80,7 @@ public class ProductService
         this.productRepository.saveAll(relevantProducts);
         return;
     }
-    public void AddCoupon(CouponDTO dto)
+    public void AddCoupon(CouponDTO dto) throws ResponseStatusException
     {
         verify(dto);
         Coupon c = new Coupon();
@@ -109,9 +106,13 @@ public class ProductService
 
         this.productRepository.saveAll(relevantProducts);
     }
-    public void AddMAPRange(String productID, Double MAP, Long startDate, Long endDate)
+    public void AddMAPRange(MAPDTO dto) throws ResponseStatusException
     {
-
+        if(dto.MAP == null || dto.startDate == null || dto.endDate == null)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Must provide startDate,endDate,and MAP");
+        }
+        Product p = GetProduct(dto);
     }
     //TODO
     public void DeleteMAPRange(String ProductID, Long date)
