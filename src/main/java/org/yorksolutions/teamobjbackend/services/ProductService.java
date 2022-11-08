@@ -67,6 +67,7 @@ public class ProductService
 
     public void DeleteCoupon(CouponDTO dto)
     {
+        verify(dto);
         Coupon c = new Coupon();
         c.code = dto.code;
         List<Product> relevantProducts = IterableToList(this.productRepository.findAllWithCouponCode(c.code));
@@ -84,6 +85,7 @@ public class ProductService
     }
     public void AddCoupon(CouponDTO dto)
     {
+        verify(dto);
         Coupon c = new Coupon();
         c.startDate = dto.startDate;
         c.endDate = dto.endDate;
@@ -138,6 +140,7 @@ public class ProductService
     }
     public void AddCategories(CategoryDTO dto) throws ResponseStatusException
     {
+        verify(dto);
         List<Product> products = GetProductsFromStringList(dto.productIDs);
         for(Product p: products)
         {
@@ -154,6 +157,7 @@ public class ProductService
     }
     public void DeleteCategories(CategoryDTO dto) throws ResponseStatusException
     {
+        verify(dto);
         List<Product> products = GetProductsFromStringList(dto.productIDs);
         for(Product p: products)
         {
