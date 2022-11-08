@@ -1,6 +1,6 @@
 package org.yorksolutions.teamobjbackend.dtos;
 
-public class DatedProductDTO extends ProductDTO
+public class DatedProductDTO extends ProductIDDTO
 {
     public Long Date;
 }

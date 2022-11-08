@@ -17,7 +17,7 @@ import java.util.List;
 @CrossOrigin
 public class ProductController
 {
-    private ProductService productService;
+    private final ProductService productService;
 
     @Autowired
     public ProductController(ProductService productService)
@@ -36,35 +36,35 @@ public class ProductController
         return this.productService.EditProduct(productData);
     }
     @DeleteMapping("delete")
-    public ResponseEntity DeleteProduct(@RequestBody ProductDTO productData)
+    public ResponseEntity<String> DeleteProduct(@RequestBody ProductDTO productData)
     {
         this.productService.DeleteProduct(productData);
-        return new ResponseEntity(HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
     @PostMapping("create/coupon")
-    public ResponseEntity AddCoupon(@RequestBody CouponDTO dto)
+    public ResponseEntity<String> AddCoupon(@RequestBody CouponDTO dto)
     {
         this.productService.AddCoupon(dto);
-        return new ResponseEntity(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
     @DeleteMapping("delete/coupon")
-    public ResponseEntity DeleteCoupon(@RequestBody CouponDTO dto)
+    public ResponseEntity<String> DeleteCoupon(@RequestBody CouponDTO dto)
     {
         this.productService.DeleteCoupon(dto);
-        return new ResponseEntity(HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
     @PutMapping("edit/categories")
-    public ResponseEntity AddCategoriesToProducts(@RequestBody CategoryDTO dto)
+    public ResponseEntity<String> AddCategoriesToProducts(@RequestBody CategoryDTO dto)
     {
         this.productService.AddCategories(dto);
-        return new ResponseEntity(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
 
     }
     @DeleteMapping("delete/categories")
-    public ResponseEntity RemoveCategoriesToProducts(@RequestBody CategoryDTO dto)
+    public ResponseEntity<String> RemoveCategoriesToProducts(@RequestBody CategoryDTO dto)
     {
         this.productService.DeleteCategories(dto);
-        return new ResponseEntity(HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
     @GetMapping("get/categories")
     public List<Product> GetProductsInCategory(@RequestParam("categoryName") String categoryName)

@@ -78,7 +78,6 @@ public class ProductService
         }
 
         this.productRepository.saveAll(relevantProducts);
-        return;
     }
     public void AddCoupon(CouponDTO dto) throws ResponseStatusException
     {
@@ -106,67 +105,54 @@ public class ProductService
 
         this.productRepository.saveAll(relevantProducts);
     }
-    public void AddMAPRange(MAPDTO dto) throws ResponseStatusException
+    public void AddMAPRange(DoubleRangedDTO dto) throws ResponseStatusException
     {
-        if(dto.MAP == null || dto.startDate == null || dto.endDate == null)
-        {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Must provide startDate,endDate,and MAP");
-        }
+        verify(dto);
         Product p = GetProduct(dto);
         DateRanged<Double> drd = new DateRanged<>();
         drd.startDate = dto.startDate;
         drd.endDate = dto.endDate;
-        drd.item = dto.MAP;
-        for(var existingdrd : p.getMapList())
-        {
-            if(existingdrd.Overlaps(drd))
-            {
-                throw new ResponseStatusException(HttpStatus.CONFLICT,"This MAP range overlaps an existing one");
-            }
-        }
-        p.getMapList().add(drd);
+        drd.item = dto.value;
+        addIfNoOverlap(p.getMapList(),drd);
         this.productRepository.save(p);
     }
-    //TODO
-    public void DeleteMAPRange(DatedProductDTO dto)
+    public void DeleteMAPRange(DatedProductDTO dto) throws ResponseStatusException
     {
+        verify(dto);
         Product p = GetProduct(dto);
-        Integer foundIndex = null;
-        var ls = p.getMapList();
-        for(int i = 0; i < ls.size();i++)
-        {
-            if(ls.get(i).InRange(dto.Date))
-            {
-                foundIndex = i;
-                break;
-            }
-        }
-        if(foundIndex != null)
-        {
-            p.getMapList().remove(foundIndex);
-        }
-        throw new ResponseStatusException(HttpStatus.CONFLICT,"There is no MAP range for the given date");
+        findAndRemoveRangeContaining(p.getMapList(),dto.Date);
+        this.productRepository.save(p);
+    }
+    public void AddPriceRange(DoubleRangedDTO dto) throws ResponseStatusException
+    {
+        verify(dto);
+        Product p = GetProduct(dto);
+        DateRanged<Double> dr = dateRangedFromDTO(dto);
+        addIfNoOverlap(p.getPricesList(),dr);
+        this.productRepository.save(p);
 
     }
-    //TODO:
-    public void AddPriceRange(String productID, Double price, Long startDate, Long endDate)
+    public void DeletePriceRange(DatedProductDTO dto) throws ResponseStatusException
     {
-
+        verify(dto);
+        Product p = GetProduct(dto);
+        findAndRemoveRangeContaining(p.getPricesList(),dto.Date);
+        this.productRepository.save(p);
     }
-    //TODO
-    public void DeletePriceRange(String ProductID, Long date)
+    public void AddSaleRange(DoubleRangedDTO dto) throws ResponseStatusException
     {
-
+        verify(dto);
+        Product p = GetProduct(dto);
+        DateRanged<Double> dr = dateRangedFromDTO(dto);
+        addIfNoOverlap(p.getSalesList(),dr);
+        this.productRepository.save(p);
     }
-    //TODO:
-    public void AddSaleRange(String productID, Double salePercent, Long startDate, Long endDate)
+    public void DeleteSaleRange(DatedProductDTO dto) throws ResponseStatusException
     {
-
-    }
-    //TODO
-    public void DeleteSaleRange(String ProductID, Long date)
-    {
-
+        verify(dto);
+        Product p = GetProduct(dto);
+        findAndRemoveRangeContaining(p.getSalesList(),dto.Date);
+        this.productRepository.save(p);
     }
     public void AddCategories(CategoryDTO dto) throws ResponseStatusException
     {
@@ -238,7 +224,7 @@ public class ProductService
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Account id requesting this operation is either non-existent or has insufficient permissions");
         }
     }
-    private Product GetProduct(ProductDTO dto)
+    private Product GetProduct(ProductIDDTO dto)
     {
         if(dto.productID == null)
         {
@@ -267,7 +253,50 @@ public class ProductService
         }
         return products;
     }
-    private void
+    private <T> void findAndRemoveRangeContaining(List<DateRanged<T>> ls, Long date)
+    {
+        Integer foundIndex = null;
+        for(int i = 0; i < ls.size();i++)
+        {
+            if(ls.get(i).InRange(date))
+            {
+                foundIndex = i;
+                break;
+            }
+        }
+        if(foundIndex != null)
+        {
+           ls.remove(foundIndex);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find a date range that contains given date");
+    }
+    private <T> void addIfNoOverlap(List<DateRanged<T>> ls, DateRanged<T> dr)
+    {
+        for(var existingdrd : ls)
+        {
+            if(existingdrd.Overlaps(dr))
+            {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,"This MAP range overlaps an existing one");
+            }
+        }
+        ls.add(dr);
+    }
+
+    private void validateDoubleDTO(DoubleRangedDTO dto)
+    {
+        if(dto.value == null || dto.startDate == null || dto.endDate == null)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Must provide startDate,endDate,and value");
+        }
+    }
+    private DateRanged<Double> dateRangedFromDTO(DoubleRangedDTO dto)
+    {
+        DateRanged<Double> dr = new DateRanged<>();
+        dr.item = dto.value;
+        dr.startDate = dto.startDate;
+        dr.endDate = dto.endDate;
+        return dr;
+    }
 
 
 }
