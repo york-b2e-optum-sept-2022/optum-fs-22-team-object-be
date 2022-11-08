@@ -113,10 +113,39 @@ public class ProductService
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Must provide startDate,endDate,and MAP");
         }
         Product p = GetProduct(dto);
+        DateRanged<Double> drd = new DateRanged<>();
+        drd.startDate = dto.startDate;
+        drd.endDate = dto.endDate;
+        drd.item = dto.MAP;
+        for(var existingdrd : p.getMapList())
+        {
+            if(existingdrd.Overlaps(drd))
+            {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,"This MAP range overlaps an existing one");
+            }
+        }
+        p.getMapList().add(drd);
+        this.productRepository.save(p);
     }
     //TODO
-    public void DeleteMAPRange(String ProductID, Long date)
+    public void DeleteMAPRange(DatedProductDTO dto)
     {
+        Product p = GetProduct(dto);
+        Integer foundIndex = null;
+        var ls = p.getMapList();
+        for(int i = 0; i < ls.size();i++)
+        {
+            if(ls.get(i).InRange(dto.Date))
+            {
+                foundIndex = i;
+                break;
+            }
+        }
+        if(foundIndex != null)
+        {
+            p.getMapList().remove(foundIndex);
+        }
+        throw new ResponseStatusException(HttpStatus.CONFLICT,"There is no MAP range for the given date");
 
     }
     //TODO:
@@ -238,6 +267,7 @@ public class ProductService
         }
         return products;
     }
+    private void
 
 
 }
