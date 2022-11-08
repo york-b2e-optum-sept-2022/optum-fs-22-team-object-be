@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.yorksolutions.teamobjbackend.dtos.CategoryDTO;
 import org.yorksolutions.teamobjbackend.dtos.CouponDTO;
 import org.yorksolutions.teamobjbackend.dtos.ProductDTO;
 import org.yorksolutions.teamobjbackend.dtos.RequestDTO;
@@ -63,7 +64,7 @@ public class ProductService
         this.productRepository.save(p);
 
     }
-    //TODO:
+
     public void DeleteCoupon(CouponDTO dto)
     {
         Coupon c = new Coupon();
@@ -81,7 +82,6 @@ public class ProductService
         this.productRepository.saveAll(relevantProducts);
         return;
     }
-    //TODO
     public void AddCoupon(CouponDTO dto)
     {
         Coupon c = new Coupon();
@@ -90,7 +90,7 @@ public class ProductService
         c.sale = dto.sale;
         c.code = dto.code;
 
-        List<Product> relevantProducts = IterableToList(this.productRepository.findAllByProductIDIn(dto.productIDs));
+        List<Product> relevantProducts = GetProductsFromStringList(dto.productIDs);
         if(relevantProducts.size() != dto.productIDs.size())
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Some product IDs were not found in database");
@@ -107,8 +107,6 @@ public class ProductService
 
         this.productRepository.saveAll(relevantProducts);
     }
-
-    //TODO:
     public void AddMAPRange(String productID, Double MAP, Long startDate, Long endDate)
     {
 
@@ -138,26 +136,41 @@ public class ProductService
     {
 
     }
-    //TODO:
-    public void AddCategories(String categoryName, List<String> productIDs)
+    public void AddCategories(CategoryDTO dto) throws ResponseStatusException
     {
-
+        List<Product> products = GetProductsFromStringList(dto.productIDs);
+        for(Product p: products)
+        {
+            if(!p.getCategories().contains(dto.categoryName))
+            {
+                p.getCategories().add(dto.categoryName);
+            }
+            else
+            {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,"Category already exists in product " + p.getProductName());
+            }
+        }
+        this.productRepository.saveAll(products);
     }
-    //TODO
-    public void DeleteCategories(String categoryName, List<String> productIDs)
+    public void DeleteCategories(CategoryDTO dto) throws ResponseStatusException
     {
-
+        List<Product> products = GetProductsFromStringList(dto.productIDs);
+        for(Product p: products)
+        {
+            if(p.getCategories().contains(dto.categoryName))
+            {
+                p.getCategories().remove(dto.categoryName);
+            }
+            else
+            {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,"Attempting to remove category that doesn't exist " + p.getProductName());
+            }
+        }
+        this.productRepository.saveAll(products);
     }
-
-
-
-    /*
-    GETS
-     */
-    //TODO
     public List<Product> GetProductsInCategory(String category)
     {
-        return null;
+        return IterableToList(this.productRepository.findAllByDiscontinuedIsFalseAndCategories(category));
     }
     //TODO
     public List<DateRanged<Double>> GetMAPRanges(String productID)
@@ -210,6 +223,15 @@ public class ProductService
         ArrayList<T> arrayList = new ArrayList<>();
         it.forEach(arrayList::add);
         return arrayList;
+    }
+    private List<Product> GetProductsFromStringList(List<String> ids) throws ResponseStatusException
+    {
+        List<Product> products = IterableToList(this.productRepository.findAllByProductIDIn(ids));
+        if(products.size() != ids.size())
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Not all ids could be mapped to products");
+        }
+        return products;
     }
 
 

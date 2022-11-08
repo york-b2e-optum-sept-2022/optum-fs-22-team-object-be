@@ -28,19 +28,24 @@ public class Product
     }
     @JsonIgnore
     @ElementCollection
-    List<DateRanged<Double>> mapList;
+    List<DateRanged<Double>> mapList = new ArrayList<>();
 
     @JsonIgnore
     @ElementCollection
-    List<DateRanged<Double>> pricesList;
+    List<DateRanged<Double>> pricesList = new ArrayList<>();
+
+    public String getProductName()
+    {
+        return productName;
+    }
 
     @JsonIgnore
     @ElementCollection
-    List<DateRanged<Double>> salesList;
+    List<DateRanged<Double>> salesList = new ArrayList<>();
 
     @JsonIgnore
     @ElementCollection
-    List<Coupon> couponList;
+    List<Coupon> couponList = new ArrayList<>();
 
 
     @JsonProperty
@@ -111,6 +116,11 @@ public class Product
         }
     }
 
+    public List<String> getCategories()
+    {
+        return categories;
+    }
+
     public List<DateRanged<Double>> getMapList()
     {
         return mapList;
@@ -131,24 +141,5 @@ public class Product
         return couponList;
     }
 
-    public void setMapList(List<DateRanged<Double>> mapList)
-    {
-        this.mapList = mapList;
-    }
-
-    public void setPricesList(List<DateRanged<Double>> pricesList)
-    {
-        this.pricesList = pricesList;
-    }
-
-    public void setSalesList(List<DateRanged<Double>> salesList)
-    {
-        this.salesList = salesList;
-    }
-
-    public void setCouponList(List<Coupon>couponList)
-    {
-        this.couponList = couponList;
-    }
 
 }

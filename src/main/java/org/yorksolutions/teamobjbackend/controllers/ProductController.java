@@ -1,11 +1,16 @@
 package org.yorksolutions.teamobjbackend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.yorksolutions.teamobjbackend.dtos.CategoryDTO;
 import org.yorksolutions.teamobjbackend.dtos.CouponDTO;
 import org.yorksolutions.teamobjbackend.dtos.ProductDTO;
 import org.yorksolutions.teamobjbackend.entities.Product;
 import org.yorksolutions.teamobjbackend.services.ProductService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/product/")
@@ -31,19 +36,40 @@ public class ProductController
         return this.productService.EditProduct(productData);
     }
     @DeleteMapping("delete")
-    public void DeleteProduct(@RequestBody ProductDTO productData)
+    public ResponseEntity DeleteProduct(@RequestBody ProductDTO productData)
     {
         this.productService.DeleteProduct(productData);
+        return new ResponseEntity(HttpStatus.ACCEPTED);
     }
     @PostMapping("create/coupon")
-    public void AddCoupon(@RequestBody CouponDTO dto)
+    public ResponseEntity AddCoupon(@RequestBody CouponDTO dto)
     {
         this.productService.AddCoupon(dto);
+        return new ResponseEntity(HttpStatus.CREATED);
     }
     @DeleteMapping("delete/coupon")
-    public void DeleteCoupon(@RequestBody CouponDTO dto)
+    public ResponseEntity DeleteCoupon(@RequestBody CouponDTO dto)
     {
         this.productService.DeleteCoupon(dto);
+        return new ResponseEntity(HttpStatus.ACCEPTED);
+    }
+    @PutMapping("edit/categories")
+    public ResponseEntity AddCategoriesToProducts(@RequestBody CategoryDTO dto)
+    {
+        this.productService.AddCategories(dto);
+        return new ResponseEntity(HttpStatus.CREATED);
+
+    }
+    @DeleteMapping("delete/categories")
+    public ResponseEntity RemoveCategoriesToProducts(@RequestBody CategoryDTO dto)
+    {
+        this.productService.DeleteCategories(dto);
+        return new ResponseEntity(HttpStatus.ACCEPTED);
+    }
+    @GetMapping("get/categories")
+    public List<Product> GetProductsInCategory(@RequestBody CategoryDTO dto)
+    {
+        return this.productService.GetProductsInCategory(dto.categoryName);
     }
 
 }
