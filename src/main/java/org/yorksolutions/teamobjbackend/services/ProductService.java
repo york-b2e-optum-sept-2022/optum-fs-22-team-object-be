@@ -199,28 +199,39 @@ public class ProductService
     {
         return IterableToList(this.productRepository.findAllByDiscontinuedIsFalseAndCategories(category));
     }
-    //TODO
-    public List<DateRanged<Double>> GetMAPRanges(String productID)
+    public List<DateRanged<Double>> GetMAPRanges(ProductIDDTO dto)
     {
-        return null;
+        verify(dto);
+        Product p = GetProduct(dto);
+        return p.getMapList();
     }
-    //TODO
-    public List<DateRanged<Double>> GetSaleRanges(String productID)
+    public List<DateRanged<Double>> GetSaleRanges(ProductIDDTO dto)
     {
-        return null;
+        verify(dto);
+        Product p = GetProduct(dto);
+        return p.getSalesList();
+
     }
-    public List<DateRanged<Double>> GetPriceRanges(String productID)
+    public List<DateRanged<Double>> GetPriceRanges(ProductIDDTO dto)
     {
-        return null;
+        verify(dto);
+        Product p = GetProduct(dto);
+        return p.getPricesList();
+
     }
-    //TODO
-    public List<String> GetCategories(String productID)
+    public List<String> GetCategories(ProductIDDTO dto)
     {
-        return null;
+        verify(dto);
+        Product p = GetProduct(dto);
+        return p.getCategories();
+
     }
-    public List<Coupon> GetCoupons(String productID)
+    public List<Coupon> GetCoupons(ProductIDDTO dto)
     {
-        return null;
+        verify(dto);
+        Product p = GetProduct(dto);
+        return p.getCouponList();
+
     }
 
     private void verify(RequestDTO dto) throws ResponseStatusException
@@ -273,15 +284,15 @@ public class ProductService
         }
         if(foundIndex != null)
         {
-           ls.remove(foundIndex);
+           ls.remove(foundIndex.intValue());
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find a date range that contains given date");
     }
     private <T> void addIfNoOverlap(List<DateRanged<T>> ls, DateRanged<T> dr)
     {
-        for(var existingdrd : ls)
+        for(var existingDR : ls)
         {
-            if(existingdrd.Overlaps(dr))
+            if(existingDR.Overlaps(dr))
             {
                 throw new ResponseStatusException(HttpStatus.CONFLICT,"This MAP range overlaps an existing one");
             }
@@ -289,15 +300,16 @@ public class ProductService
         ls.add(dr);
     }
 
-    private void validateDoubleDTO(DoubleRangedDTO dto)
+    private void validateDoubleDTO(DoubleRangedDTO dto) throws ResponseStatusException
     {
         if(dto.value == null || dto.startDate == null || dto.endDate == null)
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Must provide startDate,endDate,and value");
         }
     }
-    private DateRanged<Double> dateRangedFromDTO(DoubleRangedDTO dto)
+    private DateRanged<Double> dateRangedFromDTO(DoubleRangedDTO dto) throws ResponseStatusException
     {
+        validateDoubleDTO(dto);
         DateRanged<Double> dr = new DateRanged<>();
         dr.item = dto.value;
         dr.startDate = dto.startDate;
