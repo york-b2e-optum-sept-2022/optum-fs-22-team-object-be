@@ -67,8 +67,10 @@ public class ProductController
         return new ResponseEntity(HttpStatus.ACCEPTED);
     }
     @GetMapping("get/categories")
-    public List<Product> GetProductsInCategory(@RequestBody CategoryDTO dto)
+    public List<Product> GetProductsInCategory(@RequestParam("categoryName") String categoryName)
     {
+        CategoryDTO dto = new CategoryDTO();
+        dto.categoryName = categoryName;
         return this.productService.GetProductsInCategory(dto.categoryName);
     }
 
