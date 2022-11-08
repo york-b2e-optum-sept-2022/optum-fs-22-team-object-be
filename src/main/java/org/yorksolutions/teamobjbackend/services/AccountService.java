@@ -117,6 +117,10 @@ public class AccountService
     public String EditAccountAdmin(AdminAccountChangeDTO dto) throws ResponseStatusException
     {
         Account acc = this.GetRequesterAccount(dto);
+        if(acc.getPermission() != AccountPermission.ADMIN)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Only admins can edit other accounts");
+        }
         Optional<Account> targetAct = accountRepository.findById(dto.accountChangeID);
         if(targetAct.isEmpty())
         {
