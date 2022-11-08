@@ -6,6 +6,7 @@ import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 @Embeddable
 public class Coupon
 {
@@ -22,10 +23,6 @@ public class Coupon
     public boolean Overlaps(Coupon other)
     {
         return startDate <= other.endDate && endDate >= other.startDate;
-    }
-    public boolean InRange(Long date)
-    {
-        return date >= startDate && date <= endDate;
     }
 
     @Override

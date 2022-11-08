@@ -6,6 +6,7 @@ import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 
 
+@SuppressWarnings("unused")
 @Embeddable
 public class DateRanged<T>
 {

@@ -100,6 +100,13 @@ public class ProductService
             {
                 throw new ResponseStatusException(HttpStatus.CONFLICT,"Coupon code already in use");
             }
+            for(Coupon coup : p.getCouponList())
+            {
+                if(coup.Overlaps(c))
+                {
+                    throw new ResponseStatusException(HttpStatus.CONFLICT,"Coupon date range conflicts with existing coupon");
+                }
+            }
             p.getCouponList().add(c);
         }
 

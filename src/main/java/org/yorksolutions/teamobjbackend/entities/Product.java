@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused")
 @Entity
 public class Product
 {

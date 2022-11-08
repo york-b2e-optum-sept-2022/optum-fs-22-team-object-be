@@ -55,19 +55,6 @@ public class ProductOrder
     }
 
 
-
-
-    public String getId()
-    {
-        return id;
-    }
-
-
-    public Double getTotal()
-    {
-        return total;
-    }
-
     public void setTotal(Double total)
     {
         this.total = total;
