@@ -112,7 +112,7 @@ public class ProductService
 
         this.productRepository.saveAll(relevantProducts);
     }
-    public void AddMAPRange(DoubleRangedDTO dto) throws ResponseStatusException
+    public List<DateRanged<Double>> AddMAPRange(DoubleRangedDTO dto) throws ResponseStatusException
     {
         verify(dto);
         Product p = GetProduct(dto);
@@ -122,6 +122,7 @@ public class ProductService
         drd.item = dto.value;
         addIfNoOverlap(p.getMapList(),drd);
         this.productRepository.save(p);
+        return p.getMapList();
     }
     public void DeleteMAPRange(DatedProductDTO dto) throws ResponseStatusException
     {
@@ -130,13 +131,14 @@ public class ProductService
         findAndRemoveRangeContaining(p.getMapList(),dto.Date);
         this.productRepository.save(p);
     }
-    public void AddPriceRange(DoubleRangedDTO dto) throws ResponseStatusException
+    public List<DateRanged<Double>> AddPriceRange(DoubleRangedDTO dto) throws ResponseStatusException
     {
         verify(dto);
         Product p = GetProduct(dto);
         DateRanged<Double> dr = dateRangedFromDTO(dto);
         addIfNoOverlap(p.getPricesList(),dr);
         this.productRepository.save(p);
+        return p.getSalesList();
 
     }
     public void DeletePriceRange(DatedProductDTO dto) throws ResponseStatusException
@@ -146,13 +148,14 @@ public class ProductService
         findAndRemoveRangeContaining(p.getPricesList(),dto.Date);
         this.productRepository.save(p);
     }
-    public void AddSaleRange(DoubleRangedDTO dto) throws ResponseStatusException
+    public List<DateRanged<Double>> AddSaleRange(DoubleRangedDTO dto) throws ResponseStatusException
     {
         verify(dto);
         Product p = GetProduct(dto);
         DateRanged<Double> dr = dateRangedFromDTO(dto);
         addIfNoOverlap(p.getSalesList(),dr);
         this.productRepository.save(p);
+        return p.getSalesList();
     }
     public void DeleteSaleRange(DatedProductDTO dto) throws ResponseStatusException
     {

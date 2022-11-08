@@ -3,7 +3,6 @@ package org.yorksolutions.teamobjbackend.embeddables;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
 import java.util.Objects;
 
 @SuppressWarnings("unused")

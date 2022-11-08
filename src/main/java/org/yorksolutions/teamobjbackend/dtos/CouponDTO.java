@@ -1,7 +1,5 @@
 package org.yorksolutions.teamobjbackend.dtos;
 
-import org.yorksolutions.teamobjbackend.embeddables.DateRanged;
-
 import java.util.List;
 
 @SuppressWarnings("unused")
