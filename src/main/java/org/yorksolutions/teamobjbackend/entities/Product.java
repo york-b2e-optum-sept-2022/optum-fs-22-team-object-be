@@ -28,10 +28,12 @@ public class Product
     }
     @JsonIgnore
     @ElementCollection
+    final
     List<DateRanged<Double>> mapList = new ArrayList<>();
 
     @JsonIgnore
     @ElementCollection
+    final
     List<DateRanged<Double>> pricesList = new ArrayList<>();
 
     public String getProductName()
@@ -41,10 +43,12 @@ public class Product
 
     @JsonIgnore
     @ElementCollection
+    final
     List<DateRanged<Double>> salesList = new ArrayList<>();
 
     @JsonIgnore
     @ElementCollection
+    final
     List<Coupon> couponList = new ArrayList<>();
 
 
@@ -74,6 +78,7 @@ public class Product
 
     @JsonProperty
     @ElementCollection
+    final
     List<String> categories = new ArrayList<>();
     @JsonProperty
     Long startDate;

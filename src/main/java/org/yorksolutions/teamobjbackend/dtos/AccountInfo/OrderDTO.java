@@ -11,7 +11,7 @@ import java.util.Map;
 public class OrderDTO
 {
     @JsonProperty
-    public List<ProductAmountDTO> productAmounts = new ArrayList<>();
+    public final List<ProductAmountDTO> productAmounts = new ArrayList<>();
 
     @JsonProperty
     public Long date;

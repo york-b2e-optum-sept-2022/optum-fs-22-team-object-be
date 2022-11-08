@@ -21,9 +21,9 @@ import java.util.*;
 @Service
 public class AccountService
 {
-    private AccountRepository accountRepository;
-    private ProductOrderRepository productOrderRepository;
-    private ProductRepository productRepository;
+    private final AccountRepository accountRepository;
+    private final ProductOrderRepository productOrderRepository;
+    private final ProductRepository productRepository;
 
     @Autowired
     public AccountService(AccountRepository accountRepository, ProductOrderRepository productOrderRepository, ProductRepository productRepository)

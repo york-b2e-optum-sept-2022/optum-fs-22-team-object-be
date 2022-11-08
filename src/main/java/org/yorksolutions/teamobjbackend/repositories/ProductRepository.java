@@ -13,11 +13,11 @@ import java.util.Set;
 @Repository
 public interface ProductRepository extends CrudRepository<Product,String>
 {
-    public Iterable<Product> findAllByProductIDIn(Iterable<String> productIDs);
+    Iterable<Product> findAllByProductIDIn(Iterable<String> productIDs);
 
     @Query(value = "SELECT * FROM product WHERE productid IN (SELECT product_productid FROM product_coupon_list WHERE code = 'Test Coupon Code')", nativeQuery = true)
-    public Iterable<Product> findAllWithCouponCode(@Param("code") String code);
+    Iterable<Product> findAllWithCouponCode(@Param("code") String code);
 
-    public Iterable<Product> findAllByDiscontinuedIsFalseAndCategories(String category);
+    Iterable<Product> findAllByDiscontinuedIsFalseAndCategories(String category);
 
 }
