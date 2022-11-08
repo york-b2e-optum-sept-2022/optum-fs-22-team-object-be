@@ -8,7 +8,6 @@ import org.yorksolutions.teamobjbackend.dtos.RequestDTO;
 import org.yorksolutions.teamobjbackend.entities.Account;
 import org.yorksolutions.teamobjbackend.services.AccountService;
 
-import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -51,7 +50,7 @@ public class AccountController
         this.accountService.DeleteAccount(dto);
     }
     @GetMapping("find")
-    public Account FindAccount(@PathParam("userID") String userID, @PathParam("email") String email)
+    public Account FindAccount(@RequestParam("userID") String userID, @RequestParam("email") String email)
     {
         AccountDTO dto = new AccountDTO();
         dto.userID = userID;
@@ -59,7 +58,7 @@ public class AccountController
         return this.accountService.GetAccountByEmail(dto);
     }
     @GetMapping("all")
-    public List<Account> GetAllAccounts(@PathParam("userID") String userID)
+    public List<Account> GetAllAccounts(@RequestParam("userID") String userID)
     {
         RequestDTO dto = new RequestDTO();
         dto.userID = userID;
@@ -67,7 +66,7 @@ public class AccountController
         return this.accountService.GetAllAccounts(dto);
     }
     @GetMapping("permission")
-    public String GetMyPermissionLevel(@PathParam("userID") String userID)
+    public String GetMyPermissionLevel(@RequestParam("userID") String userID)
     {
         RequestDTO dto = new RequestDTO();
         dto.userID = userID;
@@ -80,7 +79,7 @@ public class AccountController
         this.accountService.Checkout(dto);
     }
     @GetMapping("orders")
-    public List<OrderDTO> GetOrderHistory(@PathParam("userID") String userID)
+    public List<OrderDTO> GetOrderHistory(@RequestParam("userID") String userID)
     {
         RequestDTO dto = new RequestDTO();
         dto.userID = userID;
@@ -92,7 +91,7 @@ public class AccountController
         this.accountService.AddToCart(dto);
     }
     @GetMapping("cart")
-    public OrderDTO GetCart(@PathParam("userID") String userID)
+    public OrderDTO GetCart(@RequestParam("userID") String userID)
     {
         RequestDTO dto = new RequestDTO();
         dto.userID = userID;
