@@ -8,6 +8,7 @@ import org.yorksolutions.teamobjbackend.dtos.RequestDTO;
 import org.yorksolutions.teamobjbackend.entities.Account;
 import org.yorksolutions.teamobjbackend.services.AccountService;
 
+import javax.websocket.server.PathParam;
 import java.util.List;
 
 @RestController
@@ -50,18 +51,27 @@ public class AccountController
         this.accountService.DeleteAccount(dto);
     }
     @GetMapping("find")
-    public Account FindAccount(@RequestBody AccountDTO dto)
+    public Account FindAccount(@PathParam("userID") String userID, @PathParam("email") String email)
     {
+        AccountDTO dto = new AccountDTO();
+        dto.userID = userID;
+        dto.email = email;
         return this.accountService.GetAccountByEmail(dto);
     }
     @GetMapping("all")
-    public List<Account> GetAllAccounts(@RequestBody RequestDTO dto)
+    public List<Account> GetAllAccounts(@PathParam("userID") String userID)
     {
+        RequestDTO dto = new RequestDTO();
+        dto.userID = userID;
+
         return this.accountService.GetAllAccounts(dto);
     }
     @GetMapping("permission")
-    public String GetMyPermissionLevel(@RequestBody RequestDTO dto)
+    public String GetMyPermissionLevel(@PathParam("userID") String userID)
     {
+        RequestDTO dto = new RequestDTO();
+        dto.userID = userID;
+
         return this.accountService.GetPermissionLevel(dto);
     }
     @PostMapping("checkout")
@@ -70,8 +80,10 @@ public class AccountController
         this.accountService.Checkout(dto);
     }
     @GetMapping("orders")
-    public List<OrderDTO> GetOrderHistory(@RequestBody RequestDTO dto)
+    public List<OrderDTO> GetOrderHistory(@PathParam("userID") String userID)
     {
+        RequestDTO dto = new RequestDTO();
+        dto.userID = userID;
         return this.accountService.GetHistory(dto);
     }
     @PutMapping("cart")
@@ -80,8 +92,10 @@ public class AccountController
         this.accountService.AddToCart(dto);
     }
     @GetMapping("cart")
-    public OrderDTO GetCart(@RequestBody RequestDTO dto)
+    public OrderDTO GetCart(@PathParam("userID") String userID)
     {
+        RequestDTO dto = new RequestDTO();
+        dto.userID = userID;
         return this.accountService.GetCart(dto);
     }
 
