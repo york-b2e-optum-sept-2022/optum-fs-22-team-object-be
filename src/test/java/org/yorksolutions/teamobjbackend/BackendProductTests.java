@@ -171,7 +171,7 @@ public class BackendProductTests
         },HttpStatus.FORBIDDEN) : "Customers shouldn't be able to delete coupons";
         assert ResponseFailureCheck(()->
         {
-            deleteCoupon(customerID1,"coupUnknown");
+            deleteCoupon(adminID,"coupUnknown");
         },HttpStatus.NOT_FOUND) : "Deletion should fail on unknown coupon";
 
     }
