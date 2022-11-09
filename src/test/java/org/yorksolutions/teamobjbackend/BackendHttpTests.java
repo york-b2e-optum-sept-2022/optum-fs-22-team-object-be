@@ -16,8 +16,8 @@ import org.yorksolutions.teamobjbackend.entities.AccountPermission;
 @SpringBootTest
 public class BackendHttpTests
 {
-    private AccountController accountController;
-    private ProductController productController;
+    private final AccountController accountController;
+    private final ProductController productController;
 
     @Autowired
     public BackendHttpTests(AccountController accountController, ProductController productController)
