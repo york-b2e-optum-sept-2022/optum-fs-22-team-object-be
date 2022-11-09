@@ -98,4 +98,10 @@ public class AccountController
         return this.accountService.GetCart(dto);
     }
 
+
+    public void ClearAllExceptAdmin()
+    {
+        this.accountService.TestClear();
+    }
+
 }

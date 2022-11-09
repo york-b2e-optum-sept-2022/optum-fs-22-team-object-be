@@ -307,4 +307,10 @@ public class AccountService
         }
         return OrderDTO.FromProductOrder(acc.getCart(),prods);
     }
+
+    public void TestClear()
+    {
+        this.accountRepository.deleteAll();
+        init();
+    }
 }
