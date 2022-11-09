@@ -281,6 +281,125 @@ public class BackendProductTests
 
     }
 
+    @Test
+    public void testPrice() throws Exception
+    {
+        this.accountController.ClearAllExceptAdmin();
+        this.productController.ClearAll();
+        String adminID = login("admin", "admin");
+        String customerID1 = createUser(null, "customer", "1234", null);
+        String shopkeeperID1 = createUser(adminID, "shopkeeper", "1234", AccountPermission.SHOPKEEPER);
+
+        String p1 = createProduct(shopkeeperID1, "s1", "s1desc", 1000L);
+
+        addPrice(adminID,p1,1.05,1000L,2000L);
+        addPrice(adminID,p1,1.05,2001L,3000L);
+        assert ResponseFailureCheck(()->
+        {
+            addPrice(customerID1,p1,1.05,4000L,5000L);
+        },HttpStatus.FORBIDDEN) : "Only admins can edit map ranges";
+
+        assert ResponseFailureCheck(()->
+        {
+            addPrice(adminID,p1,1.05,1500L,1800L);
+        },HttpStatus.CONFLICT) : "adding map to overlapping range should fail";
+        assert ResponseFailureCheck(()->
+        {
+            addPrice(adminID,p1,1.05,500L,1500L);
+        },HttpStatus.CONFLICT) : "adding map to overlapping range should fail";
+        assert ResponseFailureCheck(()->
+        {
+            addPrice(adminID,p1,1.05,1500L,2500L);
+        },HttpStatus.CONFLICT) : "adding map to overlapping range should fail";
+        assert ResponseFailureCheck(()->
+        {
+            addPrice(adminID,p1,1.05,500L,1000L);
+        },HttpStatus.CONFLICT) : "adding map to overlapping range should fail";
+        assert ResponseFailureCheck(()->
+        {
+            addPrice(adminID,p1,1.05,2000L,2500L);
+        },HttpStatus.CONFLICT) : "adding map to overlapping range should fail";
+        assert ResponseFailureCheck(()->
+        {
+            addPrice(adminID,p1,1.05,500L,200L);
+        },HttpStatus.BAD_REQUEST) : "map with invalid date range sohuld fail";
+
+
+        deletePrice(adminID,p1,1500L);
+
+        assert  ResponseFailureCheck( ()->
+        {
+            deletePrice(shopkeeperID1,p1,1500L);
+        },HttpStatus.NOT_FOUND) : "Should be unable to delete if no range found";
+
+        assert ResponseFailureCheck( ()->
+        {
+            deletePrice(customerID1,p1,2500L);
+        },HttpStatus.FORBIDDEN) : "Customers should not be able to delete MAP ranges";
+
+        assert this.productController.GetPrices(adminID,p1).size() == 1 : "Should have 1 map remaining at end of tests";
+
+    }
+
+    @Test
+    public void testSales() throws Exception
+    {
+        this.accountController.ClearAllExceptAdmin();
+        this.productController.ClearAll();
+        String adminID = login("admin", "admin");
+        String customerID1 = createUser(null, "customer", "1234", null);
+        String shopkeeperID1 = createUser(adminID, "shopkeeper", "1234", AccountPermission.SHOPKEEPER);
+
+        String p1 = createProduct(shopkeeperID1, "s1", "s1desc", 1000L);
+
+        addSale(adminID,p1,1.05,1000L,2000L);
+        addSale(adminID,p1,1.05,2001L,3000L);
+        assert ResponseFailureCheck(()->
+        {
+            addSale(customerID1,p1,1.05,4000L,5000L);
+        },HttpStatus.FORBIDDEN) : "Only admins can edit map ranges";
+
+        assert ResponseFailureCheck(()->
+        {
+            addSale(adminID,p1,1.05,1500L,1800L);
+        },HttpStatus.CONFLICT) : "adding map to overlapping range should fail";
+        assert ResponseFailureCheck(()->
+        {
+            addSale(adminID,p1,1.05,500L,1500L);
+        },HttpStatus.CONFLICT) : "adding map to overlapping range should fail";
+        assert ResponseFailureCheck(()->
+        {
+            addSale(adminID,p1,1.05,1500L,2500L);
+        },HttpStatus.CONFLICT) : "adding map to overlapping range should fail";
+        assert ResponseFailureCheck(()->
+        {
+            addSale(adminID,p1,1.05,500L,1000L);
+        },HttpStatus.CONFLICT) : "adding map to overlapping range should fail";
+        assert ResponseFailureCheck(()->
+        {
+            addSale(adminID,p1,1.05,2000L,2500L);
+        },HttpStatus.CONFLICT) : "adding map to overlapping range should fail";
+        assert ResponseFailureCheck(()->
+        {
+            addSale(adminID,p1,1.05,500L,200L);
+        },HttpStatus.BAD_REQUEST) : "map with invalid date range sohuld fail";
+
+
+        deleteSale(adminID,p1,1500L);
+
+        assert  ResponseFailureCheck( ()->
+        {
+            deleteSale(shopkeeperID1,p1,1500L);
+        },HttpStatus.NOT_FOUND) : "Should be unable to delete if no range found";
+
+        assert ResponseFailureCheck( ()->
+        {
+            deleteSale(customerID1,p1,2500L);
+        },HttpStatus.FORBIDDEN) : "Customers should not be able to delete MAP ranges";
+
+        assert this.productController.GetSales(adminID,p1).size() == 1 : "Should have 1 map remaining at end of tests";
+
+    }
     public void addMAP(String userID, String productID, Double map, Long start, Long end) throws ResponseStatusException
     {
         DoubleRangedDTO dto = createDoubleRanged(userID,productID,map,start,end);

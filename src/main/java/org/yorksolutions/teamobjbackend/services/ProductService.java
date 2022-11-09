@@ -236,6 +236,30 @@ public class ProductService
         return p.getCouponList();
 
     }
+    public PriceDTO CalculatePrice(String productID, String coupon, Long date)
+    {
+        if(date == null)
+        {
+            date = System.currentTimeMillis();
+        }
+
+        ProductIDDTO temp = new ProductIDDTO();
+        temp.productID = productID;
+        Product p = GetProduct(temp);
+
+        if(!p.validCoupon(date,coupon))
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "invalid coupon code");
+        }
+        PriceDTO ret = new PriceDTO();
+        ret.basePrice = p.GetBasePrice(date);
+
+        ret.realPrice = p.GetRealPrice(date,coupon);
+        ret.map = p.GetMAP(date);
+
+        return ret;
+
+    }
 
     private void verify(RequestDTO dto) throws ResponseStatusException
     {

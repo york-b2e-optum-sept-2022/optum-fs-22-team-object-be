@@ -141,6 +141,11 @@ public class ProductController
         dto.productID = productID;
         return this.productService.GetCoupons(dto);
     }
+    @GetMapping("get/price")
+    public PriceDTO GetPrice(@RequestParam("productID") String productID, @RequestParam(value = "coupon",required = false) String coupon, @RequestParam(value="date",required = false) Long date)
+    {
+        return this.productService.CalculatePrice(productID,coupon,date);
+    }
 
     public void ClearAll()
     {

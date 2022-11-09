@@ -147,5 +147,72 @@ public class Product
         return couponList;
     }
 
+    public Double GetMAP(Long date)
+    {
+        Double map = defaultMAP;
+        for(var dr : mapList)
+        {
+            if(dr.InRange(date))
+            {
+                map = dr.item;
+                break;
+            }
+        }
+        return map;
+    }
+    public Double GetBasePrice(Long date)
+    {
+        Double price = defaultPrice;
+        for(var dr : pricesList)
+        {
+            if(dr.InRange(date))
+            {
+                price = dr.item;
+                break;
+            }
+        }
+        return price;
+    }
+    public Double GetRealPrice(Long date, String couponCode)
+    {
+        Double price = defaultPrice;
+        for(var dr : pricesList)
+        {
+            if(dr.InRange(date))
+            {
+                price = dr.item;
+                break;
+            }
+        }
+        Double sale = 0.0;
+        for(var dr : salesList)
+        {
+            if(dr.InRange(date))
+            {
+                sale = dr.item;
+                break;
+            }
+        }
+        Double couponValue = 0.0;
+        for(var dr : couponList)
+        {
+            if(dr.InRange(date) && dr.code == couponCode)
+            {
+                couponValue = dr.sale;
+            }
+        }
+        return price * (1-sale) * (1-couponValue);
+    }
+    public Boolean validCoupon(Long date, String couponCode)
+    {
+        for(var dr : couponList)
+        {
+            if(dr.InRange(date) && dr.code == couponCode)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
