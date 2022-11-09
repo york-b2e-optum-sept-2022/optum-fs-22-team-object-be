@@ -320,5 +320,9 @@ public class ProductService
         return dr;
     }
 
+    public void Clear()
+    {
+        this.productRepository.deleteAll();
+    }
 
 }

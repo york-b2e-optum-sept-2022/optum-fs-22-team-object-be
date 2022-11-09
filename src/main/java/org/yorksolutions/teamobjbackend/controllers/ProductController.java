@@ -142,4 +142,8 @@ public class ProductController
         return this.productService.GetCoupons(dto);
     }
 
+    public void ClearAll()
+    {
+        this.productService.Clear();
+    }
 }
