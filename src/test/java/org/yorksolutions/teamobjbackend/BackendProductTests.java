@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.yorksolutions.teamobjbackend.controllers.AccountController;
 import org.yorksolutions.teamobjbackend.controllers.ProductController;
 import org.yorksolutions.teamobjbackend.dtos.AccountInfo.AccountDTO;
+import org.yorksolutions.teamobjbackend.dtos.CategoryDTO;
 import org.yorksolutions.teamobjbackend.dtos.CouponDTO;
 import org.yorksolutions.teamobjbackend.dtos.ProductDTO;
 import org.yorksolutions.teamobjbackend.entities.AccountPermission;
@@ -174,6 +175,71 @@ public class BackendProductTests
             deleteCoupon(adminID,"coupUnknown");
         },HttpStatus.NOT_FOUND) : "Deletion should fail on unknown coupon";
 
+    }
+
+    @Test
+    public void testCategories() throws Exception
+    {
+        this.accountController.ClearAllExceptAdmin();
+        this.productController.ClearAll();
+        String adminID = login("admin","admin");
+        String customerID1 = createUser(null,"customer","1234",null);
+        String shopkeeperID1 = createUser(adminID,"shopkeeper","1234",AccountPermission.SHOPKEEPER);
+
+        String p1 = createProduct(shopkeeperID1,"s1","s1desc",1000L);
+        String p2 = createProduct(adminID,"a1","a1desc",2000L);
+
+        this.addCategory(adminID,"Category1",Stream.of(p1));
+        this.addCategory(adminID,"Category2",Stream.of(p2));
+        this.addCategory(adminID,"CategoryAll",Stream.of(p1,p2));
+        this.addCategory(adminID,"Category3",Stream.of(p1,p2));
+
+
+        assert  ResponseFailureCheck( ()->
+        {
+            this.addCategory(customerID1,"Category5",Stream.of(p1,p2));
+        },HttpStatus.FORBIDDEN) : "Only admins should be able to create categoires";
+        assert  ResponseFailureCheck( ()->
+        {
+            this.addCategory(adminID,"Category1",Stream.of(p1,p2));
+        },HttpStatus.CONFLICT) : "Should fail on duplicate category";
+
+        assert ResponseFailureCheck( ()->
+        {
+            this.addCategory(adminID,"Category1",Stream.of(p1,"Not a product"));
+        },HttpStatus.NOT_FOUND) : "Should fail on product not being found";
+
+        this.deleteCategory(adminID,"Category1",Stream.of(p1));
+        this.deleteCategory(adminID,"Category3",Stream.of(p1));
+
+        assert ResponseFailureCheck( ()->
+        {
+            this.deleteCategory(customerID1,"Category2",Stream.of(p2));
+        },HttpStatus.FORBIDDEN) : "Only admins should be able to delete categories";
+        assert ResponseFailureCheck( ()->
+        {
+            this.deleteCategory(adminID,"Category2",Stream.of(p1,p2));
+        },HttpStatus.CONFLICT) : "Should fail on deleting category that product doesn't have";
+    }
+
+
+    public void deleteCategory(String userID, String category, Stream<String> ip)
+    {
+        List<String> products = ip.collect(Collectors.toList());
+        CategoryDTO dto = new CategoryDTO();
+        dto.categoryName = category;
+        dto.userID = userID;
+        dto.productIDs = products;
+        this.productController.RemoveCategoriesToProducts(dto);
+    }
+    public void addCategory(String userID, String category, Stream<String> ip)
+    {
+        List<String> products = ip.collect(Collectors.toList());
+        CategoryDTO dto = new CategoryDTO();
+        dto.categoryName = category;
+        dto.userID = userID;
+        dto.productIDs = products;
+        this.productController.AddCategoriesToProducts(dto);
     }
 
     public void deleteCoupon(String userID, String code)
