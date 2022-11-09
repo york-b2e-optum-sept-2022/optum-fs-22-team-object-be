@@ -33,32 +33,95 @@ public class BackendProductTests
     public void TestCreateProduct() throws Exception
     {
         this.accountController.ClearAllExceptAdmin();
+        this.productController.ClearAll();
+
 
         String adminID = login("admin","admin");
         String customerID1 = createUser(null,"customer","1234",null);
-        String shopkeeperID1 = createUser(adminID,"shopkeeper","1234",null);
+        String shopkeeperID1 = createUser(adminID,"shopkeeper","1234",AccountPermission.SHOPKEEPER);
 
         createProduct(shopkeeperID1,"s1","s1desc",1000L);
-        createProduct(adminID,"a1","a1desc",1000L);
+        createProduct(adminID,"a1","a1desc",2000L);
 
-        ResponseFailureCheck( ()->
+        assert ResponseFailureCheck( ()->
         {
-
+            createProduct(customerID1,"c1","c1desc",2000L);
         },HttpStatus.FORBIDDEN) : "Only shopkeepers or admins can create products";
 
+    }
+    @Test
+    public void TestUpdateProduct() throws Exception
+    {
+        this.accountController.ClearAllExceptAdmin();
+        this.productController.ClearAll();
+        String adminID = login("admin","admin");
+        String customerID1 = createUser(null,"customer","1234",null);
+        String shopkeeperID1 = createUser(adminID,"shopkeeper","1234",AccountPermission.SHOPKEEPER);
+
+        String p1 = createProduct(shopkeeperID1,"s1","s1desc",1000L);
+        String p2 = createProduct(adminID,"a1","a1desc",2000L);
+
+        editProduct(shopkeeperID1,p1,"s1New2","s1DescNew",3000L);
 
 
+        assert ResponseFailureCheck( ()->
+        {
+            editProduct(customerID1,p1,"s1New2Fail","s1DescNewFail",10000L);
+        },HttpStatus.FORBIDDEN) : "Only shopkeepers or admins can Edit products";
+
+    }
+    @Test
+    public void TestDeleteProduct() throws Exception
+    {
+        this.accountController.ClearAllExceptAdmin();
+        this.productController.ClearAll();
+        String adminID = login("admin","admin");
+        String customerID1 = createUser(null,"customer","1234",null);
+        String shopkeeperID1 = createUser(adminID,"shopkeeper","1234",AccountPermission.SHOPKEEPER);
+
+        String p1 = createProduct(shopkeeperID1,"s1","s1desc",1000L);
+        String p2 = createProduct(adminID,"a1","a1desc",2000L);
+
+        deleteProduct(shopkeeperID1,p1);
+
+        assert ResponseFailureCheck( () ->
+        {
+            deleteProduct(shopkeeperID1,p1);
+        },HttpStatus.NOT_FOUND) : "Cannot delete non-existent product";
+        assert ResponseFailureCheck( ()->
+        {
+            deleteProduct(customerID1,p2);
+
+        },HttpStatus.FORBIDDEN) : "Only shopkeepers or admins can delete products";
 
     }
 
-    public String createProduct(String userID, String productName, String description,Long date)
+    public void deleteProduct(String userID, String productID)
+    {
+        ProductDTO dto = new ProductDTO();
+        dto.userID = userID;
+        dto.productID = productID;
+
+        this.productController.DeleteProduct(dto);
+    }
+    public void editProduct(String userID, String productID, String productName, String description,Long date) throws ResponseStatusException
+    {
+        ProductDTO dto = new ProductDTO();
+        dto.productName = productName ;
+        dto.userID = userID ;
+        dto.description =  description;
+        dto.startDate = date;
+        dto.productID = productID;
+        this.productController.EditProduct(dto);
+    }
+    public String createProduct(String userID, String productName, String description,Long date) throws ResponseStatusException
     {
         ProductDTO dto = new ProductDTO();
         dto.defaultPrice = 1.0;
         dto.defaultMAP = 0.8;
-        dto.productName = ;
-        dto.userID = ;
-        dto.description = "description";
+        dto.productName = productName ;
+        dto.userID = userID ;
+        dto.description =  description;
         dto.images = new ArrayList<String>()
         {
             {
