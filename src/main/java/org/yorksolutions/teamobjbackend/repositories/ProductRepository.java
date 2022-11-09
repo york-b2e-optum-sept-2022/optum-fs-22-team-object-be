@@ -12,7 +12,7 @@ public interface ProductRepository extends CrudRepository<Product,String>
 {
     Iterable<Product> findAllByProductIDIn(Iterable<String> productIDs);
 
-    @Query(value = "SELECT * FROM product WHERE productid IN (SELECT product_productid FROM product_coupon_list WHERE code = 'Test Coupon Code')", nativeQuery = true)
+    @Query(value = "SELECT * FROM product WHERE productid IN (SELECT product_productid FROM product_coupon_list WHERE code = :code)", nativeQuery = true)
     Iterable<Product> findAllWithCouponCode(@Param("code") String code);
 
     Iterable<Product> findAllByDiscontinuedIsFalseAndCategories(String category);
