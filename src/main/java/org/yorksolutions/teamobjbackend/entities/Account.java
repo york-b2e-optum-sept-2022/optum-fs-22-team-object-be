@@ -4,12 +4,19 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.yorksolutions.teamobjbackend.utils.YorkUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
+@Getter
+@ToString
+@Table
 @Entity
 public class Account
 {

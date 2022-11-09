@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface AccountRepository extends CrudRepository<Account,String>
 {
     public Optional<Account> findAccountByEmail(String email);
+
+    void save();
 }
