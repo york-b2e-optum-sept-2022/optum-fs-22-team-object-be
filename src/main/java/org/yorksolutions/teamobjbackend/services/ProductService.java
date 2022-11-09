@@ -89,10 +89,6 @@ public class ProductService
         c.code = dto.code;
 
         List<Product> relevantProducts = GetProductsFromStringList(dto.productIDs);
-        if(relevantProducts.size() != dto.productIDs.size())
-        {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Some product IDs were not found in database");
-        }
         for(Product p : relevantProducts)
         {
             //if any product already has that coupon say "oh no don't do that please"
@@ -270,7 +266,7 @@ public class ProductService
         List<Product> products = IterableToList(this.productRepository.findAllByProductIDIn(ids));
         if(products.size() != ids.size())
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Not all ids could be mapped to products");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Not all ids could be mapped to products");
         }
         return products;
     }
