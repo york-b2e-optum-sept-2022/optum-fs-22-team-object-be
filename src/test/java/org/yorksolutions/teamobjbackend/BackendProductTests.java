@@ -281,36 +281,6 @@ public class BackendProductTests
 
     }
 
-    @Test
-    public void rangeContains()
-    {
-        DateRanged<Double> d = new DateRanged<>();
-        d.startDate = 1000L;
-        d.endDate = 1500L;
-
-        assert d.InRange(1250L);
-        assert d.InRange(1000L);
-        assert  d.InRange(1500L);
-    }
-
-
-    private <T> void findAndRemoveRangeContaining(List<DateRanged<T>> ls, Long date)
-    {
-        Integer foundIndex = null;
-        for(int i = 0; i < ls.size();i++)
-        {
-            if(ls.get(i).InRange(date))
-            {
-                foundIndex = i;
-                break;
-            }
-        }
-        if(foundIndex != null)
-        {
-            ls.remove(foundIndex.intValue());
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find a date range that contains given date");
-    }
     public void addMAP(String userID, String productID, Double map, Long start, Long end) throws ResponseStatusException
     {
         DoubleRangedDTO dto = createDoubleRanged(userID,productID,map,start,end);
