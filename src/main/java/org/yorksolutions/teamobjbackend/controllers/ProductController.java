@@ -135,16 +135,17 @@ public class ProductController
         return this.productService.GetCategories(dto);
     }
     @GetMapping("get/coupons")
-    public List<Coupon> GetCoupons(@RequestParam("productID") String productID)
+    public List<Coupon> GetCoupons(@RequestParam("userID") String userID, @RequestParam("productID") String productID)
     {
         ProductIDDTO dto = new ProductIDDTO();
         dto.productID = productID;
+        dto.userID = userID;
         return this.productService.GetCoupons(dto);
     }
     @GetMapping("get/price")
-    public PriceDTO GetPrice(@RequestParam("productID") String productID, @RequestParam(value = "coupon",required = false) String coupon, @RequestParam(value="date",required = false) Long date)
+    public PriceDTO GetPrice(@RequestParam("productID") String productID,@RequestParam(value="userID",required = false) String userID,  @RequestParam(value = "coupon",required = false) String coupon, @RequestParam(value="date",required = false) Long date)
     {
-        return this.productService.CalculatePrice(productID,coupon,date);
+        return this.productService.CalculatePrice(productID,userID,coupon,date);
     }
 
     public void ClearAll()

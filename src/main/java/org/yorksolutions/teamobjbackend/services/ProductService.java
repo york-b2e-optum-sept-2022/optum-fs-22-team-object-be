@@ -236,18 +236,25 @@ public class ProductService
         return p.getCouponList();
 
     }
-    public PriceDTO CalculatePrice(String productID, String coupon, Long date)
+    public PriceDTO CalculatePrice(String productID, String userID, String coupon, Long date)
     {
         if(date == null)
         {
             date = System.currentTimeMillis();
+        }
+        //check if they want a date taht is not right now
+        else
+        {
+            RequestDTO dto = new RequestDTO();
+            dto.userID = userID;
+            verify(dto);
         }
 
         ProductIDDTO temp = new ProductIDDTO();
         temp.productID = productID;
         Product p = GetProduct(temp);
 
-        if(!p.validCoupon(date,coupon))
+        if(coupon != null && !p.validCoupon(date,coupon))
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "invalid coupon code");
         }

@@ -13,6 +13,7 @@ import org.yorksolutions.teamobjbackend.embeddables.DateRanged;
 import org.yorksolutions.teamobjbackend.entities.AccountPermission;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -400,19 +401,57 @@ public class BackendProductTests
         assert this.productController.GetSales(adminID,p1).size() == 1 : "Should have 1 map remaining at end of tests";
 
     }
+
+    @Test
+    public void ProductPriceCalculation()
+    {
+        this.accountController.ClearAllExceptAdmin();
+        this.productController.ClearAll();
+        String adminID = login("admin", "admin");
+        String customerID1 = createUser(null, "customer", "1234", null);
+        String shopkeeperID1 = createUser(adminID, "shopkeeper", "1234", AccountPermission.SHOPKEEPER);
+
+        String p1 = createProduct(shopkeeperID1, "s1", "s1desc", 1000L);
+
+        addMAP(adminID,p1,1.2,1000L,2000L);
+        addPrice(adminID,p1,1.4,1000L,2000L);
+        addSale(adminID,p1,0.1,1500L,2500L);
+        addCoupon(adminID,Stream.of(p1),"code",1500L,2500L);
+
+        PriceDTO dto = this.productController.GetPrice(p1,adminID,null,1700L);
+
+        assert dto.map == 1.2;
+        assert dto.basePrice == 1.4;
+        assert dto.realPrice == (1-0.1) * 1.4;
+
+
+        PriceDTO dtoC = this.productController.GetPrice(p1,adminID,"code",1700L);
+        System.out.println(dtoC.realPrice);
+        assert dtoC.map == 1.2 : "incorrect map for couponed";
+        assert dtoC.basePrice == 1.4 : "incorrect base price for coupon";
+        assert dtoC.realPrice == (1-0.1) * (1.0-0.12)*1.4 : "incorrect real price for coupon";
+
+
+    }
+
+
+    public PriceDTO GetPrices(String userID, String productID, Long date, String coupon)
+    {
+        return this.productController.GetPrice(productID,userID,coupon,date);
+    }
     public void addMAP(String userID, String productID, Double map, Long start, Long end) throws ResponseStatusException
     {
         DoubleRangedDTO dto = createDoubleRanged(userID,productID,map,start,end);
         this.productController.AddMAP(dto);
     }
-    public void addPrice(String userID, String productID, Double map, Long start, Long end)  throws ResponseStatusException
+    public void addPrice(String userID, String productID, Double price, Long start, Long end)  throws ResponseStatusException
     {
-        DoubleRangedDTO dto = createDoubleRanged(userID,productID,map,start,end);
+        DoubleRangedDTO dto = createDoubleRanged(userID,productID,price,start,end);
         this.productController.AddPrice(dto);
     }
-    public void addSale(String userID, String productID, Double map, Long start, Long end)  throws ResponseStatusException
+    public void addSale(String userID, String productID, Double sale, Long start, Long end)  throws ResponseStatusException
     {
-        DoubleRangedDTO dto = createDoubleRanged(userID,productID,map,start,end);
+        DoubleRangedDTO dto = createDoubleRanged(userID,productID,sale,start,end);
         this.productController.AddSale(dto);
     }
     public void deleteMAP(String userID, String productID, Long date)  throws ResponseStatusException
@@ -509,7 +548,7 @@ public class BackendProductTests
     {
         ProductDTO dto = new ProductDTO();
         dto.defaultPrice = 1.0;
-        dto.defaultMAP = 0.8;
+        dto.defaultMAP = 1.0;
         dto.productName = productName ;
         dto.userID = userID ;
         dto.description =  description;

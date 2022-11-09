@@ -196,7 +196,7 @@ public class Product
         Double couponValue = 0.0;
         for(var dr : couponList)
         {
-            if(dr.InRange(date) && dr.code == couponCode)
+            if(dr.InRange(date) && dr.code.equals(couponCode))
             {
                 couponValue = dr.sale;
             }
@@ -207,7 +207,7 @@ public class Product
     {
         for(var dr : couponList)
         {
-            if(dr.InRange(date) && dr.code == couponCode)
+            if(dr.InRange(date) && dr.code.equals(couponCode))
             {
                 return true;
             }
