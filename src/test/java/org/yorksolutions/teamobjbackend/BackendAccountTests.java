@@ -14,13 +14,13 @@ import org.yorksolutions.teamobjbackend.entities.Account;
 import org.yorksolutions.teamobjbackend.entities.AccountPermission;
 
 @SpringBootTest
-public class BackendHttpTests
+public class BackendAccountTests
 {
-    private AccountController accountController;
-    private ProductController productController;
+    private final AccountController accountController;
+    private final ProductController productController;
 
     @Autowired
-    public BackendHttpTests(AccountController accountController, ProductController productController)
+    public BackendAccountTests(AccountController accountController, ProductController productController)
     {
         this.accountController = accountController;
         this.productController = productController;

@@ -87,6 +87,10 @@ public class ProductService
         c.endDate = dto.endDate;
         c.sale = dto.sale;
         c.code = dto.code;
+        if(dto.endDate < dto.startDate)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Date range should have start before end");
+        }
 
         List<Product> relevantProducts = GetProductsFromStringList(dto.productIDs);
         for(Product p : relevantProducts)
@@ -116,7 +120,7 @@ public class ProductService
         drd.startDate = dto.startDate;
         drd.endDate = dto.endDate;
         drd.item = dto.value;
-        addIfNoOverlap(p.getMapList(),drd);
+        addIfNoOverlapAndCheckRange(p.getMapList(),drd);
         this.productRepository.save(p);
         return p.getMapList();
     }
@@ -124,7 +128,7 @@ public class ProductService
     {
         verify(dto);
         Product p = GetProduct(dto);
-        findAndRemoveRangeContaining(p.getMapList(),dto.Date);
+        findAndRemoveRangeContaining(p.getMapList(),dto.date);
         this.productRepository.save(p);
     }
     public List<DateRanged<Double>> AddPriceRange(DoubleRangedDTO dto) throws ResponseStatusException
@@ -132,7 +136,7 @@ public class ProductService
         verify(dto);
         Product p = GetProduct(dto);
         DateRanged<Double> dr = dateRangedFromDTO(dto);
-        addIfNoOverlap(p.getPricesList(),dr);
+        addIfNoOverlapAndCheckRange(p.getPricesList(),dr);
         this.productRepository.save(p);
         return p.getSalesList();
 
@@ -141,7 +145,7 @@ public class ProductService
     {
         verify(dto);
         Product p = GetProduct(dto);
-        findAndRemoveRangeContaining(p.getPricesList(),dto.Date);
+        findAndRemoveRangeContaining(p.getPricesList(),dto.date);
         this.productRepository.save(p);
     }
     public List<DateRanged<Double>> AddSaleRange(DoubleRangedDTO dto) throws ResponseStatusException
@@ -149,7 +153,7 @@ public class ProductService
         verify(dto);
         Product p = GetProduct(dto);
         DateRanged<Double> dr = dateRangedFromDTO(dto);
-        addIfNoOverlap(p.getSalesList(),dr);
+        addIfNoOverlapAndCheckRange(p.getSalesList(),dr);
         this.productRepository.save(p);
         return p.getSalesList();
     }
@@ -157,7 +161,7 @@ public class ProductService
     {
         verify(dto);
         Product p = GetProduct(dto);
-        findAndRemoveRangeContaining(p.getSalesList(),dto.Date);
+        findAndRemoveRangeContaining(p.getSalesList(),dto.date);
         this.productRepository.save(p);
     }
     public void AddCategories(CategoryDTO dto) throws ResponseStatusException
@@ -284,11 +288,16 @@ public class ProductService
         if(foundIndex != null)
         {
            ls.remove(foundIndex.intValue());
+           return;
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find a date range that contains given date");
     }
-    private <T> void addIfNoOverlap(List<DateRanged<T>> ls, DateRanged<T> dr)
+    private <T> void addIfNoOverlapAndCheckRange(List<DateRanged<T>> ls, DateRanged<T> dr)
     {
+        if(dr.endDate < dr.startDate)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Date range should have start before end");
+        }
         for(var existingDR : ls)
         {
             if(existingDR.Overlaps(dr))
