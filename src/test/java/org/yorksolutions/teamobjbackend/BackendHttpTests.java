@@ -9,6 +9,8 @@ import org.springframework.web.server.ResponseStatusException;
 import org.yorksolutions.teamobjbackend.controllers.AccountController;
 import org.yorksolutions.teamobjbackend.controllers.ProductController;
 import org.yorksolutions.teamobjbackend.dtos.AccountInfo.AccountDTO;
+import org.yorksolutions.teamobjbackend.dtos.AccountInfo.AdminAccountChangeDTO;
+import org.yorksolutions.teamobjbackend.entities.Account;
 import org.yorksolutions.teamobjbackend.entities.AccountPermission;
 
 @SpringBootTest
@@ -79,7 +81,7 @@ public class BackendHttpTests
 
     }
     @Test
-    public void TestAccountUpdates()
+    public void TestAccountUpdates() throws Exception
     {
         accountController.ClearAllExceptAdmin();
         //Test admin login
@@ -88,11 +90,124 @@ public class BackendHttpTests
         String shopkeeperID1 = createUser(adminID,"shopkeeper1","1234",AccountPermission.SHOPKEEPER);
         String adminID1 = createUser(adminID,"admin1","1234",AccountPermission.ADMIN);
 
-        updateUser(customerID1,"customer1new","12345",
+        //Test update and login
+        updateUser(customerID1,"customer1new","1234new",null);
+        login("customer1new","1234new");
+        //Test admin update and login
+        updateUserAdmin(adminID1,"customer1newA","1234newA",null,customerID1);
+        login("customer1newA","1234newA");
+        //Test admin update permission
+        updateUserAdmin(adminID1,"customer1newA","1234newA",AccountPermission.SHOPKEEPER,customerID1);
+        assert this.accountController.GetMyPermissionLevel(customerID1) == AccountPermission.SHOPKEEPER.name();
+
+
+        //Test failures:
+        //Change email to taken email
+        assert ResponseFailureCheck( () ->
+        {
+            updateUser(customerID1,"admin","1234",null);
+        },HttpStatus.CONFLICT) : "User changed to email that already exists, shouldn't be allowed";
+
+        assert  ResponseFailureCheck( () ->
+        {
+            updateUser("a","b","c",null);
+
+        },HttpStatus.BAD_REQUEST) : "Updating an an unknown user should fail";
+
+        assert ResponseFailureCheck( () ->
+        {
+            updateUserAdmin(shopkeeperID1,"admin1BAD","1234BAD",null,adminID);
+        }, HttpStatus.FORBIDDEN) : "only admins should be able to update accounts";
+
+        assert ResponseFailureCheck( () ->
+        {
+            updateUserAdmin(adminID,"admin1BAD","1234BAD",null,"abc");
+        }, HttpStatus.NOT_FOUND) : "only should fail on unknown account";
 
 
     }
 
+    @Test
+    public void TestAccountDeletion() throws Exception
+    {
+        accountController.ClearAllExceptAdmin();
+        String adminID = login("admin","admin");
+        String customerID1 = createUser(null,"customer1","1234",null);
+        String shopkeeperID1 = createUser(adminID,"shopkeeper1","1234",AccountPermission.SHOPKEEPER);
+        String adminID1 = createUser(adminID,"admin1","1234",AccountPermission.ADMIN);
+
+
+        //Test self delete
+        deleteUser(customerID1,null);
+        //Test admin delete
+        deleteUser(adminID,"admin1");
+
+
+        //Test admin delete self
+        assert ResponseFailureCheck( () ->
+        {
+            deleteUser(adminID,"admin");
+        },HttpStatus.FORBIDDEN) : "Admin shouldn't be able to delete self";
+        assert ResponseFailureCheck( () ->
+        {
+            deleteUser(adminID,null);
+        },HttpStatus.FORBIDDEN) : "Admin shouldn't be able to delete self";
+        //Test admin delete unknown
+        assert ResponseFailureCheck( () ->
+        {
+            deleteUser(adminID,"abc");
+        },HttpStatus.NOT_FOUND) : "Shouldn't be able to delete unknown user";
+
+        String customerID2 = createUser(null,"customer1","1234",null);
+        //Test non admin delete admin
+        assert ResponseFailureCheck( () ->
+        {
+            deleteUser(customerID2,"admin");
+        },HttpStatus.FORBIDDEN) : "non-admin shouldn't be able to delete other users";
+
+    }
+
+    @Test
+    public void testGetUser() throws Exception
+    {
+        accountController.ClearAllExceptAdmin();
+        String adminID = login("admin","admin");
+        String customerID1 = createUser(null,"customer1","1234",null);
+
+        getUser(adminID,"customer1");
+
+
+        assert ResponseFailureCheck( () ->
+        {
+            getUser(adminID,"adfhawret");
+        },HttpStatus.NOT_FOUND) : "Should be not found on non-existent user";
+
+        assert ResponseFailureCheck( () ->
+        {
+            getUser(customerID1, "admin");
+        },HttpStatus.FORBIDDEN) : "Should only admins can get other userIDs";
+
+        assert this.accountController.GetAllAccounts(adminID).size() == 2;
+
+        assert  ResponseFailureCheck( () ->
+        {
+            this.accountController.GetAllAccounts(customerID1);
+        },HttpStatus.FORBIDDEN) : "Only admins should be able to get all accounts";
+
+    }
+
+    public Account getUser(String userID, String email)
+    {
+        return this.accountController.FindAccount(userID,email);
+    }
+    public void deleteUser(String userID, String email)
+    {
+        AccountDTO dto = new AccountDTO();
+        dto.userID = userID;
+        dto.email = email;
+
+        this.accountController.DeleteAccount(dto);
+    }
     public void updateUser(String userID, String email, String password, AccountPermission permission)
     {
         AccountDTO dto = new AccountDTO();
@@ -101,6 +216,16 @@ public class BackendHttpTests
         dto.password = password;
         dto.permission = permission != null ? permission.name() : null;
         this.accountController.ChangeAccountInfo(dto);
+    }
+    public void updateUserAdmin(String userID, String email, String password, AccountPermission permission, String accountToChangeID)
+    {
+        AdminAccountChangeDTO dto = new AdminAccountChangeDTO();
+        dto.userID = userID;
+        dto.email = email;
+        dto.password = password;
+        dto.permission = permission != null ? permission.name() : null;
+        dto.accountChangeID = accountToChangeID;
+        this.accountController.AdminChangeAccountInfo(dto);
     }
     public String login(String email, String password) throws ResponseStatusException
     {
