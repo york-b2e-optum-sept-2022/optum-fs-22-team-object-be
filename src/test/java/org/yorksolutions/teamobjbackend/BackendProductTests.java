@@ -109,7 +109,7 @@ public class BackendProductTests
     }
 
     @Test
-    public void testAddCoupon() throws Exception
+    public void testCoupons() throws Exception
     {
         this.accountController.ClearAllExceptAdmin();
         this.productController.ClearAll();
@@ -163,8 +163,26 @@ public class BackendProductTests
         },HttpStatus.FORBIDDEN) : "Customers shouldn't be able to create coupons";
 
 
+        deleteCoupon(adminID,"coup1");
+
+        assert ResponseFailureCheck(()->
+        {
+            deleteCoupon(customerID1,"coup2");
+        },HttpStatus.FORBIDDEN) : "Customers shouldn't be able to delete coupons";
+        assert ResponseFailureCheck(()->
+        {
+            deleteCoupon(customerID1,"coupUnknown");
+        },HttpStatus.NOT_FOUND) : "Deletion should fail on unknown coupon";
+
     }
 
+    public void deleteCoupon(String userID, String code)
+    {
+        CouponDTO dto = new CouponDTO();
+        dto.userID = userID;
+        dto.code = code;
+        this.productController.DeleteCoupon(dto);
+    }
     public void addCoupon(String userID, Stream<String> ip, String code, Long start, Long end)
     {
         List<String> products = ip.collect(Collectors.toList());
