@@ -270,6 +270,10 @@ public class ProductService
 
     private void verify(RequestDTO dto) throws ResponseStatusException
     {
+        if(dto.userID == null)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Must provide a userID");
+        }
         Optional<Account> acct = accountRepository.findById(dto.userID);
         if(acct.isEmpty() || acct.get().getPermission() == AccountPermission.CUSTOMER)
         {
