@@ -129,7 +129,7 @@ public class ProductController
      * GET /api/product/get/all
      * {@link ProductService#GetProducts(String)}
      * @param userID user making request (optional)
-     * @return
+     * @return all products
      */
     @GetMapping(value="get/all")
     public List<Product> GetAllProducts(@RequestParam(value="userID", required = false) String userID)
