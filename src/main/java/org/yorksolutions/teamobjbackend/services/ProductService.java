@@ -268,6 +268,7 @@ public class ProductService
 
     }
 
+
     private void verify(RequestDTO dto) throws ResponseStatusException
     {
         if(dto.userID == null)
@@ -280,7 +281,34 @@ public class ProductService
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Account id requesting this operation is either non-existent or has insufficient permissions");
         }
     }
-    private Product GetProduct(ProductIDDTO dto)
+    public List<Product> GetProducts (String userID) throws ResponseStatusException
+    {
+        List<Product> products = IterableToList(this.productRepository.findAll());
+        boolean obfs = true;
+        if(userID != null)
+        {
+            Optional<Account> acc = this.accountRepository.findById(userID);
+            if(acc.isPresent())
+            {
+                Account account = acc.get();
+                if(account.getPermission() == AccountPermission.ADMIN || account.getPermission() == AccountPermission.SHOPKEEPER)
+                {
+                    obfs = false;
+                }
+            }
+        }
+        if(obfs)
+        {
+            for(Product p : products)
+            {
+                p.Obfuscate();;
+            }
+        }
+        return products;
+    }
+
+
+    public Product GetProduct(ProductIDDTO dto) throws ResponseStatusException
     {
         if(dto.productID == null)
         {
@@ -291,7 +319,21 @@ public class ProductService
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Did not find product with given id");
         }
-        return p.get();
+        Product prod = p.get();
+        //If a customer is the one asking for  this product we obfuscate it, removing sensitive price details
+        if(dto.userID != null)
+        {
+            Optional<Account> oacc = this.accountRepository.findById(dto.userID);
+            if (oacc.isEmpty() || oacc.get().getPermission() == AccountPermission.CUSTOMER)
+            {
+                prod.Obfuscate();
+            }
+        }
+        else
+        {
+            prod.Obfuscate();
+        }
+        return prod;
     }
 
     private static <T> List<T> IterableToList(Iterable<T> it)

@@ -66,6 +66,19 @@ public class ProductController
         this.productService.DeleteCategories(dto);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
+    @GetMapping(value = "get")
+    public Product GetProduct(@RequestParam(value="userID", required = false) String userID,@RequestParam(value="productID") String productID)
+    {
+        ProductIDDTO dto = new ProductIDDTO();
+        dto.userID = userID;
+        dto.productID = productID;
+        return this.productService.GetProduct(dto);
+    }
+    @GetMapping(value="get/all")
+    public List<Product> GetAllProducts(@RequestParam(value="userID", required = false) String userID)
+    {
+        return this.productService.GetProducts(userID);
+    }
     @GetMapping("get/allCategories")
     public List<Product> GetProductsInCategory(@RequestParam("categoryName") String categoryName)
     {
