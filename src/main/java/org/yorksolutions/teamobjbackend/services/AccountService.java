@@ -299,17 +299,20 @@ public class AccountService
      * @param dto the userID to  checkout
      * @throws ResponseStatusException BAD_REQUEST on invalid userID or empty cart
      */
-    public void Checkout(RequestDTO dto) throws ResponseStatusException
+    public void Checkout(RequestDTO dto, String couponCode) throws ResponseStatusException
     {
         Account acc = GetRequesterAccount(dto);
-        var cart = acc.getCart();
-        if(cart.getProductsOrdered().size() == 0)
+        var orderDTO = GetCart(dto);
+
+        orderDTO.date = System.currentTimeMillis();
+        orderDTO.price = 0.0;
+        for(var pa : orderDTO.productAmounts)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Cannot checkout with 0 items");
+            orderDTO.price += pa.product.GetRealPrice(null,couponCode) * pa.amount;
         }
-        //TODO: Fix this
-        cart.setTotal(-1.0);
-        cart.setDate(System.currentTimeMillis());
+        var cart = acc.getCart();
+        cart.setDate(orderDTO.date);
+        cart.setTotal(orderDTO.price);
         acc.getPastOrders().add(cart);
         //save old cart, add to list, make new cart
         productOrderRepository.save(cart);

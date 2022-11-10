@@ -128,13 +128,14 @@ public class AccountController
     }
     /**
      * PUT /api/user/checkout
-     * {@link AccountService#Checkout(RequestDTO)}
+     * {@link AccountService#Checkout(RequestDTO,String)}
      * @param dto DTO
+     * @param coupon optional coupon code as query parameter
      */
     @PostMapping("checkout")
-    public void Checkout(@RequestBody RequestDTO dto)
+    public void Checkout(@RequestBody RequestDTO dto, @RequestParam("coupon") String coupon)
     {
-        this.accountService.Checkout(dto);
+        this.accountService.Checkout(dto,coupon);
     }
     /**
      * GET /api/user/orders
