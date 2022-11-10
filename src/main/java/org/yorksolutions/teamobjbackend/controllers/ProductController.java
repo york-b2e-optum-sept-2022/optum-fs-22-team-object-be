@@ -66,6 +66,19 @@ public class ProductController
         this.productService.DeleteCategories(dto);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
+    @GetMapping(value = "get")
+    public Product GetProduct(@RequestParam(value="userID", required = false) String userID,@RequestParam(value="productID") String productID)
+    {
+        ProductIDDTO dto = new ProductIDDTO();
+        dto.userID = userID;
+        dto.productID = productID;
+        return this.productService.GetProduct(dto);
+    }
+    @GetMapping(value="get/all")
+    public List<Product> GetAllProducts(@RequestParam(value="userID", required = false) String userID)
+    {
+        return this.productService.GetProducts(userID);
+    }
     @GetMapping("get/allCategories")
     public List<Product> GetProductsInCategory(@RequestParam("categoryName") String categoryName)
     {
@@ -135,11 +148,17 @@ public class ProductController
         return this.productService.GetCategories(dto);
     }
     @GetMapping("get/coupons")
-    public List<Coupon> GetCoupons(@RequestParam("productID") String productID)
+    public List<Coupon> GetCoupons(@RequestParam("userID") String userID, @RequestParam("productID") String productID)
     {
         ProductIDDTO dto = new ProductIDDTO();
         dto.productID = productID;
+        dto.userID = userID;
         return this.productService.GetCoupons(dto);
+    }
+    @GetMapping("get/price")
+    public PriceDTO GetPrice(@RequestParam("productID") String productID,@RequestParam(value="userID",required = false) String userID,  @RequestParam(value = "coupon",required = false) String coupon, @RequestParam(value="date",required = false) Long date)
+    {
+        return this.productService.CalculatePrice(productID,userID,coupon,date);
     }
 
     public void ClearAll()

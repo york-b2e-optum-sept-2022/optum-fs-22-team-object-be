@@ -10,4 +10,5 @@ public class CouponDTO extends RequestDTO
     public Long startDate;
     public Long endDate;
     public Double sale;
+    
 }

@@ -87,12 +87,12 @@ public class ProductService
         c.endDate = dto.endDate;
         c.sale = dto.sale;
         c.code = dto.code;
+        if(dto.endDate < dto.startDate)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Date range should have start before end");
+        }
 
         List<Product> relevantProducts = GetProductsFromStringList(dto.productIDs);
-        if(relevantProducts.size() != dto.productIDs.size())
-        {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Some product IDs were not found in database");
-        }
         for(Product p : relevantProducts)
         {
             //if any product already has that coupon say "oh no don't do that please"
@@ -120,7 +120,7 @@ public class ProductService
         drd.startDate = dto.startDate;
         drd.endDate = dto.endDate;
         drd.item = dto.value;
-        addIfNoOverlap(p.getMapList(),drd);
+        addIfNoOverlapAndCheckRange(p.getMapList(),drd);
         this.productRepository.save(p);
         return p.getMapList();
     }
@@ -128,7 +128,7 @@ public class ProductService
     {
         verify(dto);
         Product p = GetProduct(dto);
-        findAndRemoveRangeContaining(p.getMapList(),dto.Date);
+        findAndRemoveRangeContaining(p.getMapList(),dto.date);
         this.productRepository.save(p);
     }
     public List<DateRanged<Double>> AddPriceRange(DoubleRangedDTO dto) throws ResponseStatusException
@@ -136,7 +136,7 @@ public class ProductService
         verify(dto);
         Product p = GetProduct(dto);
         DateRanged<Double> dr = dateRangedFromDTO(dto);
-        addIfNoOverlap(p.getPricesList(),dr);
+        addIfNoOverlapAndCheckRange(p.getPricesList(),dr);
         this.productRepository.save(p);
         return p.getSalesList();
 
@@ -145,7 +145,7 @@ public class ProductService
     {
         verify(dto);
         Product p = GetProduct(dto);
-        findAndRemoveRangeContaining(p.getPricesList(),dto.Date);
+        findAndRemoveRangeContaining(p.getPricesList(),dto.date);
         this.productRepository.save(p);
     }
     public List<DateRanged<Double>> AddSaleRange(DoubleRangedDTO dto) throws ResponseStatusException
@@ -153,7 +153,7 @@ public class ProductService
         verify(dto);
         Product p = GetProduct(dto);
         DateRanged<Double> dr = dateRangedFromDTO(dto);
-        addIfNoOverlap(p.getSalesList(),dr);
+        addIfNoOverlapAndCheckRange(p.getSalesList(),dr);
         this.productRepository.save(p);
         return p.getSalesList();
     }
@@ -161,7 +161,7 @@ public class ProductService
     {
         verify(dto);
         Product p = GetProduct(dto);
-        findAndRemoveRangeContaining(p.getSalesList(),dto.Date);
+        findAndRemoveRangeContaining(p.getSalesList(),dto.date);
         this.productRepository.save(p);
     }
     public void AddCategories(CategoryDTO dto) throws ResponseStatusException
@@ -236,16 +236,79 @@ public class ProductService
         return p.getCouponList();
 
     }
+    public PriceDTO CalculatePrice(String productID, String userID, String coupon, Long date)
+    {
+        if(date == null)
+        {
+            date = System.currentTimeMillis();
+        }
+        //check if they want a date taht is not right now
+        else
+        {
+            RequestDTO dto = new RequestDTO();
+            dto.userID = userID;
+            verify(dto);
+        }
+
+        ProductIDDTO temp = new ProductIDDTO();
+        temp.productID = productID;
+        Product p = GetProduct(temp);
+
+        if(coupon != null && !p.validCoupon(date,coupon))
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "invalid coupon code");
+        }
+        PriceDTO ret = new PriceDTO();
+        ret.basePrice = p.GetBasePrice(date);
+
+        ret.realPrice = p.GetRealPrice(date,coupon);
+        ret.map = p.GetMAP(date);
+
+        return ret;
+
+    }
+
 
     private void verify(RequestDTO dto) throws ResponseStatusException
     {
+        if(dto.userID == null)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Must provide a userID");
+        }
         Optional<Account> acct = accountRepository.findById(dto.userID);
         if(acct.isEmpty() || acct.get().getPermission() == AccountPermission.CUSTOMER)
         {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Account id requesting this operation is either non-existent or has insufficient permissions");
         }
     }
-    private Product GetProduct(ProductIDDTO dto)
+    public List<Product> GetProducts (String userID) throws ResponseStatusException
+    {
+        List<Product> products = IterableToList(this.productRepository.findAll());
+        boolean obfs = true;
+        if(userID != null)
+        {
+            Optional<Account> acc = this.accountRepository.findById(userID);
+            if(acc.isPresent())
+            {
+                Account account = acc.get();
+                if(account.getPermission() == AccountPermission.ADMIN || account.getPermission() == AccountPermission.SHOPKEEPER)
+                {
+                    obfs = false;
+                }
+            }
+        }
+        if(obfs)
+        {
+            for(Product p : products)
+            {
+                p.Obfuscate();;
+            }
+        }
+        return products;
+    }
+
+
+    public Product GetProduct(ProductIDDTO dto) throws ResponseStatusException
     {
         if(dto.productID == null)
         {
@@ -256,7 +319,21 @@ public class ProductService
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Did not find product with given id");
         }
-        return p.get();
+        Product prod = p.get();
+        //If a customer is the one asking for  this product we obfuscate it, removing sensitive price details
+        if(dto.userID != null)
+        {
+            Optional<Account> oacc = this.accountRepository.findById(dto.userID);
+            if (oacc.isEmpty() || oacc.get().getPermission() == AccountPermission.CUSTOMER)
+            {
+                prod.Obfuscate();
+            }
+        }
+        else
+        {
+            prod.Obfuscate();
+        }
+        return prod;
     }
 
     private static <T> List<T> IterableToList(Iterable<T> it)
@@ -270,7 +347,7 @@ public class ProductService
         List<Product> products = IterableToList(this.productRepository.findAllByProductIDIn(ids));
         if(products.size() != ids.size())
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Not all ids could be mapped to products");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Not all ids could be mapped to products");
         }
         return products;
     }
@@ -288,11 +365,16 @@ public class ProductService
         if(foundIndex != null)
         {
            ls.remove(foundIndex.intValue());
+           return;
         }
         throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Could not find a date range that contains given date");
     }
-    private <T> void addIfNoOverlap(List<DateRanged<T>> ls, DateRanged<T> dr)
+    private <T> void addIfNoOverlapAndCheckRange(List<DateRanged<T>> ls, DateRanged<T> dr)
     {
+        if(dr.endDate < dr.startDate)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Date range should have start before end");
+        }
         for(var existingDR : ls)
         {
             if(existingDR.Overlaps(dr))

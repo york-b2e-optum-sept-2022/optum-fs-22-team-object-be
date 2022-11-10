@@ -23,6 +23,10 @@ public class Coupon
     {
         return startDate <= other.endDate && endDate >= other.startDate;
     }
+    public boolean InRange(Long date)
+    {
+        return date >= startDate && date <= endDate;
+    }
 
     @Override
     public boolean equals(Object o)

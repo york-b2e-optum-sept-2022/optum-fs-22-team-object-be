@@ -1,6 +1,7 @@
 package org.yorksolutions.teamobjbackend.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.yorksolutions.teamobjbackend.dtos.ProductDTO;
@@ -10,6 +11,7 @@ import org.yorksolutions.teamobjbackend.embeddables.DateRanged;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -147,5 +149,97 @@ public class Product
         return couponList;
     }
 
+    public Double GetMAP(Long date)
+    {
+        Double map = defaultMAP;
+        for(var dr : mapList)
+        {
+            if(dr.InRange(date))
+            {
+                map = dr.item;
+                break;
+            }
+        }
+        return map;
+    }
+    public Double GetBasePrice(Long date)
+    {
+        Double price = defaultPrice;
+        for(var dr : pricesList)
+        {
+            if(dr.InRange(date))
+            {
+                price = dr.item;
+                break;
+            }
+        }
+        return price;
+    }
+    public Double GetRealPrice(Long date, String couponCode)
+    {
+        Double price = defaultPrice;
+        for(var dr : pricesList)
+        {
+            if(dr.InRange(date))
+            {
+                price = dr.item;
+                break;
+            }
+        }
+        Double sale = 0.0;
+        for(var dr : salesList)
+        {
+            if(dr.InRange(date))
+            {
+                sale = dr.item;
+                break;
+            }
+        }
+        Double couponValue = 0.0;
+        for(var dr : couponList)
+        {
+            if(dr.InRange(date) && dr.code.equals(couponCode))
+            {
+                couponValue = dr.sale;
+            }
+        }
+        return price * (1-sale) * (1-couponValue);
+    }
+    public Boolean validCoupon(Long date, String couponCode)
+    {
+        for(var dr : couponList)
+        {
+            if(dr.InRange(date) && dr.code.equals(couponCode))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    public void Obfuscate()
+    {
+        this.defaultPrice = null;
+        this.defaultMAP = null;
+    }
 
+
+    @Transient
+    @JsonProperty("CurrentListPrice")
+    Double ListPrice;
+
+
+    @Transient
+    @JsonProperty("CurrentRealPrice")
+    Double RealPrice;
+
+    @JsonGetter("CurrentRealPrice")
+    public Double JsonGetRealPrice()
+    {
+        return GetRealPrice(System.currentTimeMillis(),null);
+    }
+    @JsonGetter("CurrentListPrice")
+    public Double JsonGetListPrice()
+    {
+        return GetBasePrice(System.currentTimeMillis());
+    }
 }
