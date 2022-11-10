@@ -33,7 +33,7 @@ public class BackendProductTests
 
 
     @Test
-    public void TestCreateProduct() throws Exception
+    public void TestCreateAndGetProduct() throws Exception
     {
         this.accountController.ClearAllExceptAdmin();
         this.productController.ClearAll();
@@ -43,13 +43,58 @@ public class BackendProductTests
         String customerID1 = createUser(null, "customer", "1234", null);
         String shopkeeperID1 = createUser(adminID, "shopkeeper", "1234", AccountPermission.SHOPKEEPER);
 
-        createProduct(shopkeeperID1, "s1", "s1desc", 1000L);
-        createProduct(adminID, "a1", "a1desc", 2000L);
+        String p1 = createProduct(shopkeeperID1, "s1", "s1desc", 1000L);
+        String p2 = createProduct(adminID, "a1", "a1desc", 2000L);
 
         assert ResponseFailureCheck(() ->
         {
             createProduct(customerID1, "c1", "c1desc", 2000L);
         }, HttpStatus.FORBIDDEN) : "Only shopkeepers or admins can create products";
+
+        var prods = this.productController.GetAllProducts(shopkeeperID1);
+        assert  prods.size() == 2 : "Should have correct number of products created";
+
+        assert prods.get(0).getDefaultMAP() != null : "Should not obfuscate on shopkeeper use";
+        assert prods.get(0).getDefaultPrice() != null : "Should not obfuscate on shopkeeper use";
+
+        var prodsCustomer = this.productController.GetAllProducts(customerID1);
+
+
+        assert prodsCustomer.get(0).getDefaultMAP() == null : "Should obfuscate on non-elevated use";
+        assert prodsCustomer.get(0).getDefaultPrice() == null : "Should obfuscate on non-elevated use";
+
+        var prodsNull = this.productController.GetAllProducts(null);
+
+        assert prodsNull.get(0).getDefaultMAP() == null : "Should obfuscate on non-elevated use";
+        assert prodsNull.get(0).getDefaultPrice() == null : "Should obfuscate on non-elevated use";
+
+        var prod1Elevated = this.productController.GetProduct(shopkeeperID1,p1);
+
+        assert prod1Elevated.getDefaultPrice() != null : "Should not obfuscate on elevated use";
+        assert prod1Elevated.getDefaultMAP() != null : "Should not obfuscate on elevated use";
+
+
+        var prod1Nonelevated = this.productController.GetProduct(null,p1);
+
+        assert prod1Nonelevated.getDefaultPrice() == null : "Should  obfuscate on non-elevated use";
+        assert prod1Nonelevated.getDefaultMAP() == null : "Should  obfuscate on non-elevated use";
+
+        var prod1Nonelevated2 = this.productController.GetProduct(customerID1,p1);
+
+        assert prod1Nonelevated2.getDefaultPrice() == null : "Should  obfuscate on non-elevated use";
+        assert prod1Nonelevated2.getDefaultMAP() == null : "Should  obfuscate on non-elevated use";
+
+        assert ResponseFailureCheck( ()->
+        {
+            this.productController.GetProduct(shopkeeperID1,"Not a product");
+        },HttpStatus.NOT_FOUND) : "Should throw 404 on gettig non-existent product";
+
+
+        assert ResponseFailureCheck( ()->
+        {
+            this.productController.GetProduct(null,"Not a product");
+        },HttpStatus.NOT_FOUND) : "Should throw 404 on gettig non-existent product";
+
 
     }
 

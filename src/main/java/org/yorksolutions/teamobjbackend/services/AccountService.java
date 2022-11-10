@@ -310,8 +310,8 @@ public class AccountService
 
     public void TestClear()
     {
-        this.productOrderRepository.deleteAll();
         this.accountRepository.deleteAll();
+        this.productOrderRepository.deleteAll();
         init();
     }
 }

@@ -124,6 +124,16 @@ public class Product
         }
     }
 
+    public Double getDefaultPrice()
+    {
+        return defaultPrice;
+    }
+
+    public Double getDefaultMAP()
+    {
+        return defaultMAP;
+    }
+
     public List<String> getCategories()
     {
         return categories;
