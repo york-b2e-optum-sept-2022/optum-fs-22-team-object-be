@@ -18,7 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
+/**
+ * Service used to manage product and product related information
+ * All DTOs contain a userID field to authorize
+ */
 @Service
 public class ProductService
 {
@@ -33,6 +36,12 @@ public class ProductService
         this.accountRepository = accountRepository;
     }
 
+    /**
+     * Create a product
+     * @param dto DTO containing all product data (productID ignored)
+     * @return Product - all product details of newly created product
+     * @throws ResponseStatusException - FORBIDDEN on bad userID
+     */
     public Product CreateProduct(ProductDTO dto) throws ResponseStatusException
     {
         verify(dto);
@@ -41,6 +50,13 @@ public class ProductService
         this.productRepository.save(p);
         return p;
     }
+
+    /**
+     * Edit a product
+     * @param dto DTO containing all product data to be updated - fields set to null ignored.  Must provide productID
+     * @return
+     * @throws ResponseStatusException NOT_FOUND on unknown productID BAD_REQUEST on invalid productID, FORBIDDEN on bad userID
+     */
     public Product EditProduct(ProductDTO dto) throws ResponseStatusException
     {
         verify(dto);
@@ -49,6 +65,12 @@ public class ProductService
         this.productRepository.save(p);
         return p;
     }
+
+    /**
+     * Deletes (i.e. sets the discontinued status to true) a product
+     * @param dto DTO containing requester and product ID to be deleted
+     * @throws ResponseStatusException NOT_FOUND on unknown productID BAD_REQUEST on invalid productID, FORBIDDEN on bad userID, BAD_REQUEST on deleting already deleted product
+     */
     public void DeleteProduct(ProductDTO dto) throws ResponseStatusException
     {
         verify(dto);
@@ -62,6 +84,11 @@ public class ProductService
 
     }
 
+    /**
+     * Delets a coupon by its code on a list of products
+     * @param dto DTO containing the coupon code to be deleted, and list of productIDs to delete from
+     * @throws ResponseStatusException NOT_FOUND on any productID being non-existent, FORBIDDEN on bad userID
+     */
     public void DeleteCoupon(CouponDTO dto) throws ResponseStatusException
     {
         verify(dto);
@@ -79,6 +106,12 @@ public class ProductService
 
         this.productRepository.saveAll(relevantProducts);
     }
+
+    /**
+     * Adds a coupon to a list of products
+     * @param dto DTO containing coupon information
+     * @throws ResponseStatusException ResponseStatusException NOT_FOUND on any productID being non-existent, FORBIDDEN on bad userID, CONFLICT on date range overlap or coupon code in use on any given product
+     */
     public void AddCoupon(CouponDTO dto) throws ResponseStatusException
     {
         verify(dto);
@@ -112,6 +145,13 @@ public class ProductService
 
         this.productRepository.saveAll(relevantProducts);
     }
+
+    /**
+     * Adds a map range to a products
+     * @param dto a DTO containing the map, start date, end date, and productID
+     * @return All map ranges
+     * @throws ResponseStatusException FORBIDDEN on bad userID, NOT_FOUND on invalid productID
+     */
     public List<DateRanged<Double>> AddMAPRange(DoubleRangedDTO dto) throws ResponseStatusException
     {
         verify(dto);
@@ -124,6 +164,12 @@ public class ProductService
         this.productRepository.save(p);
         return p.getMapList();
     }
+
+    /**
+     * Deletes a map range from a product
+     * @param dto DTO containing the a date in the range of the MapRange you want to remove
+     * @throws ResponseStatusException FORBIDDEN on bad userID, NOT_FOUND on invalid product ID
+     */
     public void DeleteMAPRange(DatedProductDTO dto) throws ResponseStatusException
     {
         verify(dto);
@@ -131,6 +177,12 @@ public class ProductService
         findAndRemoveRangeContaining(p.getMapList(),dto.date);
         this.productRepository.save(p);
     }
+    /**
+     * Adds a price range to a product
+     * @param dto a DTO containing the price, start date, end date, and productID
+     * @return All price ranges
+     * @throws ResponseStatusException FORBIDDEN on bad userID, NOT_FOUND on invalid productID
+     */
     public List<DateRanged<Double>> AddPriceRange(DoubleRangedDTO dto) throws ResponseStatusException
     {
         verify(dto);
@@ -138,9 +190,15 @@ public class ProductService
         DateRanged<Double> dr = dateRangedFromDTO(dto);
         addIfNoOverlapAndCheckRange(p.getPricesList(),dr);
         this.productRepository.save(p);
-        return p.getSalesList();
+        return p.getPricesList();
 
     }
+
+    /**
+     * Deletes a price rrange on a product
+     * @param dto containing the date of the range you want removed
+     * @throws ResponseStatusException FORBIDDEN on bad userID, NOT_FOUND on invalid productID
+     */
     public void DeletePriceRange(DatedProductDTO dto) throws ResponseStatusException
     {
         verify(dto);
@@ -148,6 +206,12 @@ public class ProductService
         findAndRemoveRangeContaining(p.getPricesList(),dto.date);
         this.productRepository.save(p);
     }
+    /**
+     * Adds a sale range to a products
+     * @param dto a DTO containing the sale, start date, end date, and productID
+     * @return All sale ranges
+     * @throws ResponseStatusException FORBIDDEN on bad userID, NOT_FOUND on invalid productID
+     */
     public List<DateRanged<Double>> AddSaleRange(DoubleRangedDTO dto) throws ResponseStatusException
     {
         verify(dto);
@@ -157,6 +221,11 @@ public class ProductService
         this.productRepository.save(p);
         return p.getSalesList();
     }
+    /**
+     * Deletes a sale range on a product
+     * @param dto containing the date of the range you want removed
+     * @throws ResponseStatusException FORBIDDEN on bad userID, NOT_FOUND on invalid productID
+     */
     public void DeleteSaleRange(DatedProductDTO dto) throws ResponseStatusException
     {
         verify(dto);
@@ -164,10 +233,20 @@ public class ProductService
         findAndRemoveRangeContaining(p.getSalesList(),dto.date);
         this.productRepository.save(p);
     }
+
+    /**
+     * Adds a category to a list of products
+     * @param dto
+     * @throws ResponseStatusException FORBIDDEN on bad userID, CONFLICT on already existing product, NOT_FOUND on some product IDs being non-existent
+     */
     public void AddCategories(CategoryDTO dto) throws ResponseStatusException
     {
         verify(dto);
         List<Product> products = GetProductsFromStringList(dto.productIDs);
+        if(products.size() != dto.productIDs.size())
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not all product IDs could be found");
+        }
         for(Product p: products)
         {
             if(!p.getCategories().contains(dto.categoryName))
@@ -181,10 +260,20 @@ public class ProductService
         }
         this.productRepository.saveAll(products);
     }
+
+    /**
+     * Delete categories from a product list
+     * @param dto category name and list of product IDs to remove that category from
+     * @throws ResponseStatusException FORBIDDEN on bad user ID, NOT_FOUND on any prodcut IDs being not found, CONFLICT on productID not having the category you want to remove
+     */
     public void DeleteCategories(CategoryDTO dto) throws ResponseStatusException
     {
         verify(dto);
         List<Product> products = GetProductsFromStringList(dto.productIDs);
+        if(products.size() != dto.productIDs.size())
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not all product IDs could be found");
+        }
         for(Product p: products)
         {
             if(p.getCategories().contains(dto.categoryName))
@@ -198,45 +287,93 @@ public class ProductService
         }
         this.productRepository.saveAll(products);
     }
+
+    /**
+     * Gets all products in a category
+     * @param category Category name
+     * @return List of products in give ncategory (could be empty)
+     */
     public List<Product> GetProductsInCategory(String category)
     {
         return IterableToList(this.productRepository.findAllByDiscontinuedIsFalseAndCategories(category));
     }
-    public List<DateRanged<Double>> GetMAPRanges(ProductIDDTO dto)
+
+    /**
+     * Gets all map ranges of a product
+     * @param dto DTO containing the productID you want the ranges of
+     * @return List of map ranges
+     * @throws ResponseStatusException FORBIDDEN on bad userID, NOT_FOUND on invalid productID
+     */
+    public List<DateRanged<Double>> GetMAPRanges(ProductIDDTO dto) throws ResponseStatusException
     {
         verify(dto);
         Product p = GetProduct(dto);
         return p.getMapList();
     }
-    public List<DateRanged<Double>> GetSaleRanges(ProductIDDTO dto)
+    /**
+     * Gets all sale ranges of a product
+     * @param dto DTO containing the productID you want the ranges of
+     * @return List sale map ranges
+     * @throws ResponseStatusException FORBIDDEN on bad userID, NOT_FOUND on invalid productID
+     */
+    public List<DateRanged<Double>> GetSaleRanges(ProductIDDTO dto)throws ResponseStatusException
     {
         verify(dto);
         Product p = GetProduct(dto);
         return p.getSalesList();
 
     }
-    public List<DateRanged<Double>> GetPriceRanges(ProductIDDTO dto)
+    /**
+     * Gets all price ranges of a product
+     * @param dto DTO containing the productID you want the ranges of
+     * @return List of price ranges
+     * @throws ResponseStatusException FORBIDDEN on bad userID, NOT_FOUND on invalid productID
+     */
+    public List<DateRanged<Double>> GetPriceRanges(ProductIDDTO dto) throws ResponseStatusException
     {
         verify(dto);
         Product p = GetProduct(dto);
         return p.getPricesList();
 
     }
+
+    /**
+     * Gets all categories of a given product
+     * @param dto DTO containing the product ID you want the categories of
+     * @return
+     * @throws ResponseStatusException NOT_FOUND on invalid productID
+     */
     public List<String> GetCategories(ProductIDDTO dto)
     {
-        verify(dto);
         Product p = GetProduct(dto);
         return p.getCategories();
 
     }
-    public List<Coupon> GetCoupons(ProductIDDTO dto)
+
+    /**
+     * Gets all coupons that a product has
+     * @param dto DTO containing the product ID you want the coupons for
+     * @return
+     * @throws ResponseStatusException NOT_FOUND on invalid productID
+     */
+    public List<Coupon> GetCoupons(ProductIDDTO dto) throws ResponseStatusException
     {
         verify(dto);
         Product p = GetProduct(dto);
         return p.getCouponList();
 
     }
-    public PriceDTO CalculatePrice(String productID, String userID, String coupon, Long date)
+
+    /**
+     * Calculates all relevant prices
+     * @param productID productID to check
+     * @param userID userID that should be shopkeeper or admin if date is given
+     * @param coupon coupon code or null
+     * @param date date or null
+     * @return Three Prices (MAP, ListedPrice,Real Price) as a DTO
+     * @throws ResponseStatusException NOT_FOUND on invalid productID or coupon code
+     */
+    public PriceDTO CalculatePrice(String productID, String userID, String coupon, Long date) throws ResponseStatusException
     {
         if(date == null)
         {
@@ -307,12 +444,17 @@ public class ProductService
         return products;
     }
 
-
+    /**
+     * Gets (potentially obfuscated) product details
+     * @param dto DTO containing product ID, and optionally a userID of high permission value
+     * @return Product details of the requested product
+     * @throws ResponseStatusException NOT_FOUND on invalid product ID
+     */
     public Product GetProduct(ProductIDDTO dto) throws ResponseStatusException
     {
         if(dto.productID == null)
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Product id not given for editing");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Product id not given for editing");
         }
         Optional<Product> p = this.productRepository.findById(dto.productID);
         if(p.isEmpty())

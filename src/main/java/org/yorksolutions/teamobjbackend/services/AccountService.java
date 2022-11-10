@@ -18,6 +18,9 @@ import org.yorksolutions.teamobjbackend.utils.YorkUtils;
 import javax.annotation.PostConstruct;
 import java.util.*;
 
+/**
+ * Service used for CRUD operations relating to user accounts
+ */
 @Service
 public class AccountService
 {
@@ -34,7 +37,7 @@ public class AccountService
     }
 
     @PostConstruct
-    public void init()
+    private void init()
     {
         if(this.accountRepository.count() == 0)
         {
@@ -45,7 +48,12 @@ public class AccountService
     }
 
 
-
+    /**
+     * Attempts to register a new user
+     * @param dto Relevant account data
+     * @return The ID of the newly registered user
+     * @throws ResponseStatusException CONFLICT on email collision, FORBIDDEN on customer/shopkeeper trying to make an account for another person,
+     */
     public String AttemptRegister(AccountDTO dto) throws ResponseStatusException
     {
         Optional<Account> existingAccount = accountRepository.findAccountByEmail(dto.email);
@@ -78,6 +86,12 @@ public class AccountService
         return newAccount.getId();
     }
 
+    /**
+     * Attempts to login an existing user
+     * @param dto account information
+     * @return The ID of the logged in user
+     * @throws ResponseStatusException BAD_REQUEST on invalid login credentials
+     */
     public String AttemptLogin(AccountDTO dto) throws ResponseStatusException
     {
         Optional<Account> existingAccount = accountRepository.findAccountByEmail(dto.email);
@@ -87,6 +101,13 @@ public class AccountService
         }
         return existingAccount.get().getId();
     }
+
+    /**
+     * Edits the reqeusters account - non admin, cannot change permissions
+     * @param dto
+     * @return ID of the edited account
+     * @throws ResponseStatusException BAD_REQUEST on invalid userID, CONFLICT on changing to a taken email
+     */
 
     public String EditAccount(AccountDTO dto) throws ResponseStatusException
     {
@@ -114,6 +135,13 @@ public class AccountService
         return acc.getId();
 
     }
+
+    /**
+     * Edits an account as teh admin
+     * @param dto relevant account information
+     * @return ID of the editeed account
+     * @throws ResponseStatusException FORBIDDEN on non-admin access, NOT_FOUND on invalid accountChangeID,BAD_REQUEST on invalid userID or invalid permission level
+     */
     public String EditAccountAdmin(AdminAccountChangeDTO dto) throws ResponseStatusException
     {
         Account acc = this.GetRequesterAccount(dto);
@@ -155,6 +183,12 @@ public class AccountService
         return changeAct.getId();
 
     }
+
+    /**
+     *
+     * @param dto
+     * @throws ResponseStatusException BAD_REQUEST on invalid userID, FORBIDDEN on attempting to delete own account as admin , NOT_FOUND on admin attempting to delete unknown email address
+     */
     public void DeleteAccount(AccountDTO dto) throws ResponseStatusException
     {
         Account requester = GetRequesterAccount(dto);
@@ -165,6 +199,7 @@ public class AccountService
         //user deletes self
         else if(dto.email == null)
         {
+            this.productOrderRepository.delete(requester.getCart());
             this.accountRepository.delete(requester);
             return;
         }
@@ -186,6 +221,7 @@ public class AccountService
             //if admin is attempting to delete their own account thats bad
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You cannot delete your own account as an admin");
         }
+        this.productOrderRepository.delete(targetAccount.get().getCart());
         this.accountRepository.delete(targetAccount.get());
 
 
@@ -219,10 +255,14 @@ public class AccountService
     }
     private Account GetRequesterAccount(RequestDTO dto) throws ResponseStatusException
     {
+        if(dto.userID == null)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"must provide userID");
+        }
         Optional<Account> acc = this.accountRepository.findById(dto.userID);
         if(acc.isEmpty())
         {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid accountID");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Invalid userID");
         }
         return acc.get();
     }
@@ -310,8 +350,8 @@ public class AccountService
 
     public void TestClear()
     {
-//        this.productOrderRepository.deleteAll();
         this.accountRepository.deleteAll();
+        this.productOrderRepository.deleteAll();
         init();
     }
 }
