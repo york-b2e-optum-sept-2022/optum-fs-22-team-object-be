@@ -419,7 +419,13 @@ public class ProductService
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Account id requesting this operation is either non-existent or has insufficient permissions");
         }
     }
-    public List<Product> GetProducts (String userID) throws ResponseStatusException
+
+    /**
+     * Gets all products
+     * @param userID id of user (optional), obfuscates if insufficient level
+     * @return list of products
+     */
+    public List<Product> GetProducts (String userID)
     {
         List<Product> products = IterableToList(this.productRepository.findAllByDiscontinuedIsFalse());
         boolean obfs = true;
