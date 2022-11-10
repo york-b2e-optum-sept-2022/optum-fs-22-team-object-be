@@ -29,6 +29,10 @@ public class ProductOrder
     @JsonProperty
     Long date;
 
+    public Double getTotal()
+    {
+        return total;
+    }
 
     public ProductOrder()
     {
