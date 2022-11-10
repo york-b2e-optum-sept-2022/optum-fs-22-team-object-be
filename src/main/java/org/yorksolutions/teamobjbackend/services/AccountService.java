@@ -165,6 +165,7 @@ public class AccountService
         //user deletes self
         else if(dto.email == null)
         {
+            this.productOrderRepository.delete(requester.getCart());
             this.accountRepository.delete(requester);
             return;
         }
@@ -186,6 +187,7 @@ public class AccountService
             //if admin is attempting to delete their own account thats bad
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You cannot delete your own account as an admin");
         }
+        this.productOrderRepository.delete(targetAccount.get().getCart());
         this.accountRepository.delete(targetAccount.get());
 
 
