@@ -15,6 +15,8 @@ import org.yorksolutions.teamobjbackend.entities.Product;
 @Repository
 public interface ProductRepository extends CrudRepository<Product,String>
 {
+
+    Iterable<Product> findAllByDiscontinuedIsFalse();
     Iterable<Product> findAllByProductIDIn(Iterable<String> productIDs);
 
     /**

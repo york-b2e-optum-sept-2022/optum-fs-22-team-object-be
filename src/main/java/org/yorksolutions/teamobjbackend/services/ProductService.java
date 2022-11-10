@@ -421,7 +421,7 @@ public class ProductService
     }
     public List<Product> GetProducts (String userID) throws ResponseStatusException
     {
-        List<Product> products = IterableToList(this.productRepository.findAll());
+        List<Product> products = IterableToList(this.productRepository.findAllByDiscontinuedIsFalse());
         boolean obfs = true;
         if(userID != null)
         {
