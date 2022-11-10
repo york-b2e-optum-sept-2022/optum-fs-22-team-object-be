@@ -297,6 +297,7 @@ public class AccountService
     /**
      * Checks the user out - destroys old cart, adds cart to order history
      * @param dto the userID to  checkout
+     * @param couponCode coupon to attempt to apply
      * @throws ResponseStatusException BAD_REQUEST on invalid userID or empty cart
      */
     public void Checkout(RequestDTO dto, String couponCode) throws ResponseStatusException
