@@ -8,6 +8,8 @@ import javax.persistence.Embeddable;
 /**
  * Encapsulates a type with a start date and end date
  * @param <T> Type to be encapsulated
+ *
+ * @author Max Feige
  */
 @SuppressWarnings("unused")
 @Embeddable

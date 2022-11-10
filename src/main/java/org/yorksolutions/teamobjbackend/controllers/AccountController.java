@@ -88,7 +88,7 @@ public class AccountController
     @PutMapping("cart")
     public void ChangeCart(@RequestBody CartChangeDTO dto)
     {
-        this.accountService.AddToCart(dto);
+        this.accountService.ChangeCart(dto);
     }
     @GetMapping("cart")
     public OrderDTO GetCart(@RequestParam("userID") String userID)

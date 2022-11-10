@@ -20,6 +20,7 @@ import java.util.*;
 
 /**
  * Service used for CRUD operations relating to user accounts
+ * @author Max Feige
  */
 @Service
 public class AccountService
@@ -104,7 +105,7 @@ public class AccountService
 
     /**
      * Edits the reqeusters account - non admin, cannot change permissions
-     * @param dto
+     * @param dto account information to edit
      * @return ID of the edited account
      * @throws ResponseStatusException BAD_REQUEST on invalid userID, CONFLICT on changing to a taken email
      */
@@ -185,8 +186,8 @@ public class AccountService
     }
 
     /**
-     *
-     * @param dto
+     * Deletes an account
+     * @param dto contains userID to delete if non-admin, or userID of admin and email of user to delete as an admin
      * @throws ResponseStatusException BAD_REQUEST on invalid userID, FORBIDDEN on attempting to delete own account as admin , NOT_FOUND on admin attempting to delete unknown email address
      */
     public void DeleteAccount(AccountDTO dto) throws ResponseStatusException
@@ -226,6 +227,13 @@ public class AccountService
 
 
     }
+
+    /**
+     * Find an account by email
+     * @param dto DTO containing the userID of the requester, and the email of the desired account
+     * @return Returns the account details of the requested email
+     * @throws ResponseStatusException BAD_REQUEST on userID not found, FORBIDDEN on non-admin access, NOT_FOUND on unknown email address
+     */
     public Account GetAccountByEmail(AccountDTO dto) throws ResponseStatusException
     {
         Account req = GetRequesterAccount(dto);
@@ -241,6 +249,13 @@ public class AccountService
         return found.get();
 
     }
+
+    /**
+     * Get all accounts
+     * @param dto DTO containing userID of requester - requester should be admin
+     * @return List of all accounts
+     * @throws ResponseStatusException BAD_REQUEST on invalid userID, FORBIDDEN on non-admin access
+     */
     public List<Account> GetAllAccounts(RequestDTO dto) throws ResponseStatusException
     {
         Account acc = GetRequesterAccount(dto);
@@ -266,11 +281,24 @@ public class AccountService
         }
         return acc.get();
     }
+
+    /**
+     * Gives the permission level of a given userID
+     * @param dto The userID to check permission of
+     * @return String representing the permission level
+     * @throws ResponseStatusException BAD_REQUEST on invalid userID
+     */
     public String GetPermissionLevel(RequestDTO dto) throws ResponseStatusException
     {
         Account c = GetRequesterAccount(dto);
         return c.permissionAsString();
     }
+
+    /**
+     * Checks the user out - destroys old cart, adds cart to order history
+     * @param dto the userID to  checkout
+     * @throws ResponseStatusException BAD_REQUEST on invalid userID or empty cart
+     */
     public void Checkout(RequestDTO dto) throws ResponseStatusException
     {
         Account acc = GetRequesterAccount(dto);
@@ -279,6 +307,7 @@ public class AccountService
         {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Cannot checkout with 0 items");
         }
+        //TODO: Fix this
         cart.setTotal(-1.0);
         cart.setDate(System.currentTimeMillis());
         acc.getPastOrders().add(cart);
@@ -288,6 +317,13 @@ public class AccountService
         productOrderRepository.save(acc.getCart());
         accountRepository.save(acc);
     }
+
+    /**
+     * Gets all previous orders
+     * @param dto DTO containing userID
+     * @return A list of orderDTOs which represent the order history
+     * @throws ResponseStatusException BAD_REQUEST on invalidUSERID
+     */
     public List<OrderDTO> GetHistory(RequestDTO dto) throws ResponseStatusException
     {
         Account acc = GetRequesterAccount(dto);
@@ -313,9 +349,18 @@ public class AccountService
 
     }
 
-    public void AddToCart(CartChangeDTO dto) throws ResponseStatusException
+    /**
+     * Adds or removes a product from cart
+     * @param dto - dto containing the product ID to add/remove, and the amount of product that will *remain* in cart
+     * @throws ResponseStatusException  BAD_REQUEST on negative number of products, invalid userID, or invalid productID, NOT_FOUND on non-existent productID
+     */
+    public void ChangeCart(CartChangeDTO dto) throws ResponseStatusException
     {
         Account acc = GetRequesterAccount(dto);
+        if(dto.productID == null)
+        {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Must provide productID");
+        }
         Optional<Product> prod = productRepository.findById(dto.productID);
         if(prod.isEmpty())
         {
@@ -336,6 +381,13 @@ public class AccountService
         this.productOrderRepository.save(acc.getCart());
         this.accountRepository.save(acc);
     }
+
+    /**
+     * Gets the current cart of the requester
+     * @param dto DTO containig userID
+     * @return OrderDTO with all relevant data, with current price and date ordered set to null
+     * @throws ResponseStatusException BAD_REQUEST on invalid userID
+     */
     public OrderDTO GetCart(RequestDTO dto) throws ResponseStatusException
     {
         Account acc = GetRequesterAccount(dto);

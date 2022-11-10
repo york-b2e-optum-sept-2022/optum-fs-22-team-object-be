@@ -21,6 +21,7 @@ import java.util.Optional;
 /**
  * Service used to manage product and product related information
  * All DTOs contain a userID field to authorize
+ * @author Max Feige
  */
 @Service
 public class ProductService
@@ -54,7 +55,7 @@ public class ProductService
     /**
      * Edit a product
      * @param dto DTO containing all product data to be updated - fields set to null ignored.  Must provide productID
-     * @return
+     * @return returns the product with the new information
      * @throws ResponseStatusException NOT_FOUND on unknown productID BAD_REQUEST on invalid productID, FORBIDDEN on bad userID
      */
     public Product EditProduct(ProductDTO dto) throws ResponseStatusException
@@ -236,7 +237,7 @@ public class ProductService
 
     /**
      * Adds a category to a list of products
-     * @param dto
+     * @param dto DTO containnig category name and list of products to add said category to
      * @throws ResponseStatusException FORBIDDEN on bad userID, CONFLICT on already existing product, NOT_FOUND on some product IDs being non-existent
      */
     public void AddCategories(CategoryDTO dto) throws ResponseStatusException
@@ -340,7 +341,7 @@ public class ProductService
     /**
      * Gets all categories of a given product
      * @param dto DTO containing the product ID you want the categories of
-     * @return
+     * @return returns all categories of given product
      * @throws ResponseStatusException NOT_FOUND on invalid productID
      */
     public List<String> GetCategories(ProductIDDTO dto)
@@ -353,7 +354,7 @@ public class ProductService
     /**
      * Gets all coupons that a product has
      * @param dto DTO containing the product ID you want the coupons for
-     * @return
+     * @return all coupons for given product
      * @throws ResponseStatusException NOT_FOUND on invalid productID
      */
     public List<Coupon> GetCoupons(ProductIDDTO dto) throws ResponseStatusException
