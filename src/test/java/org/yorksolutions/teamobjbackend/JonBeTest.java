@@ -178,6 +178,7 @@ public class JonBeTest {
         String adminID = login("admin", "admin");
 //        Test admin login
 //        User accounts already created above, testdelete will be focused on deleting existing accounts
+//        Removing and recreating users for each test
         String customerID1 = createUser("customerID1", "customer1new", "12345", AccountPermission.CUSTOMER);
         String shopkeeperID1 = createUser(adminID, "shopkeeper1", "1234", AccountPermission.SHOPKEEPER);
 //        String adminID1 = createUser(adminID, "admin1", "1234", AccountPermission.ADMIN);
@@ -216,12 +217,24 @@ public class JonBeTest {
 
     @Test
     public void testPermission() throws ResponseStatusException{
-//        return null;
-        //placeholder
+        accountController.ClearAllExceptAdmin();
+        String adminID = login("admin", "admin");
+        String customerID1 = createUser(null, "customer1new", "12345", AccountPermission.CUSTOMER);
+        //currentCustomer will hold the returned account from findUser
+        Account currentCustomer = findUser(adminID, "customer1new");
+        //Now we use getId() method from the Account entities.
+        //Retrieve the userId and assign to String customerUserId
+        String customerUserId = currentCustomer.permissionAsString();
+        // We pass the actual userId through to permissionAsString
+        // getPermission calls the controller then service and uses the userId to retrieve orders.
+        getPermission(customerUserId);
     }
 
     @Test
     public void testCheckout() throws ResponseStatusException{
+        accountController.ClearAllExceptAdmin();
+        String adminID = login("admin", "admin");
+
 
     }
 
@@ -257,7 +270,7 @@ public class JonBeTest {
     public OrderDTO getCart(String userID) throws ResponseStatusException{
         RequestDTO dto = new RequestDTO();
         dto.userID = userID;
-        return this.accountController.GetCart(dto.userID);
+        return this.accountController.GetCart(userID);
     }
 
     public void addToCart(CartChangeDTO dto) throws ResponseStatusException{
@@ -267,7 +280,7 @@ public class JonBeTest {
     public List<OrderDTO> getOrders(String userID) throws ResponseStatusException{
         RequestDTO dto = new RequestDTO();
         dto.userID = userID;
-        return this.accountController.GetOrderHistory(dto.userID);
+        return this.accountController.GetOrderHistory(userID);
     }
 
     public void getCheckout(String userID) throws ResponseStatusException{
@@ -279,7 +292,7 @@ public class JonBeTest {
         RequestDTO dto = new RequestDTO();
         dto.userID = userID;
 
-        return this.accountController.GetMyPermissionLevel(dto.userID);
+        return this.accountController.GetMyPermissionLevel(userID);
     }
     public List<Account> getUsers(String userID) {
         RequestDTO dto = new RequestDTO();
