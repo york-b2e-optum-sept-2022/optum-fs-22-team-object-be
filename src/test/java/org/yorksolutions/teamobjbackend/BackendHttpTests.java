@@ -88,7 +88,7 @@ public class BackendHttpTests
         String shopkeeperID1 = createUser(adminID,"shopkeeper1","1234",AccountPermission.SHOPKEEPER);
         String adminID1 = createUser(adminID,"admin1","1234",AccountPermission.ADMIN);
 
-        updateUser(customerID1,"customer1new","12345",
+        updateUser(customerID1,"customer1new","12345",AccountPermission.CUSTOMER);
 
 
     }

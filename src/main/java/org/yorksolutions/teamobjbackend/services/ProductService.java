@@ -325,4 +325,49 @@ public class ProductService
         this.productRepository.deleteAll();
     }
 
+    public static double updateDefaultPrice(ProductDTO pdto) {
+        Double lowDiscountQuantity = 5.00;
+        Double mediumDiscountQuantity = 10.00;
+        Double maxDiscountQuantity = 20.00;
+
+
+        //Will need to add a quantity property to ProductDTO and Entity
+        // Add Get method for getting the current quantity
+        if (pdto.productQuantity >= lowDiscountQuantity) {
+            double lowDiscountPrice = pdto.defaultPrice - (pdto.defaultPrice * 0.05);
+            // returning new lowDiscountPrice, which is 5% off.
+            // Use the setter to updateDefault price ->  public void update(ProductDTO pdto)
+            // Pass lowDiscountPrice as dpto.defaultPrice so it becomes this.defaultPrice;
+
+            // return defaultPrice (as lowDiscountPrice)
+        }
+        if (pdto.productQuantity >= mediumDiscountQuantity) {
+            double mediumDiscountPrice = pdto.defaultPrice - (pdto.defaultPrice * 0.10);
+            // returning new lowDiscountPrice, which is 10% off.
+            // Use the setter to updateDefault price ->  public void update(ProductDTO pdto)
+            // Pass lowDiscountPrice as dpto.defaultPrice so it becomes this.defaultPrice;
+
+            // return defaultPrice (as mediumDiscountPrice)
+        }
+        if (pdto.productQuantity >= maxDiscountQuantity) {
+            double maxDiscountPrice = pdto.defaultPrice - (pdto.defaultPrice * 0.20);
+            // returning new lowDiscountPrice, which is 20% off.
+            // Use the setter to updateDefault price ->  public void update(ProductDTO pdto)
+            // Pass lowDiscountPrice as dpto.defaultPrice so it becomes this.defaultPrice;
+
+            // return defaultPrice (as maxDiscountPrice)
+        }
+
+        return pdto.defaultPrice;
+
+
+        //    Showing as INVALID, but need to re-map to new default price
+        //    if quantity is 0 to 4, no discount
+        //    if quantity is 5-9, 5% discount
+        //    if quantity is 10-19, 10% discount
+        //    if quantity is 20+, 20% discount
+
+
+    }
+
 }
