@@ -71,7 +71,7 @@ public class BackendOrderTests
 
     public OrderDTO GetCart(String userID)
     {
-        return this.accountController.GetCart(userID);
+        return this.accountController.GetCart(userID,null);
     }
 
     public void SetCart(String userID, String productID, Integer number)

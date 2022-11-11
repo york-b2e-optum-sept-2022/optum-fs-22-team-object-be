@@ -167,11 +167,11 @@ public class AccountController
      * @return The current cart of the user, with null total and null date
      */
     @GetMapping("cart")
-    public OrderDTO GetCart(@RequestParam("userID") String userID)
+    public OrderDTO GetCart(@RequestParam("userID") String userID,@RequestParam(value = "couponCode",required = false) String couponCode)
     {
         RequestDTO dto = new RequestDTO();
         dto.userID = userID;
-        return this.accountService.GetCart(dto);
+        return this.accountService.GetCart(dto,couponCode);
     }
 
 
