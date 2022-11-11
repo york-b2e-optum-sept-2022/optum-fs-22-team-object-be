@@ -41,6 +41,4 @@ public class ProductDTO extends ProductIDDTO
     @JsonProperty
     public Double defaultMAP;
 
-    @JsonProperty
-    public int productQuantity;
 }

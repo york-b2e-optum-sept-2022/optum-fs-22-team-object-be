@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.yorksolutions.teamobjbackend.dtos.*;
+import org.yorksolutions.teamobjbackend.dtos.AccountInfo.ProductAmountDTO;
 import org.yorksolutions.teamobjbackend.embeddables.Coupon;
 import org.yorksolutions.teamobjbackend.embeddables.DateRanged;
 import org.yorksolutions.teamobjbackend.entities.Account;
@@ -562,32 +563,47 @@ public class ProductService
         this.productRepository.deleteAll();
     }
 
-    public static double updateDefaultPrice(ProductDTO pdto) {
-        Double lowDiscountQuantity = 5.00;
-        Double mediumDiscountQuantity = 10.00;
-        Double maxDiscountQuantity = 20.00;
+    /**
+     * Calculates quantities at cost discount
+     * @param pdto the product w/ amount
+     * @param currentPrice the current calculated price
+     * @return the new price with QAC discount
+     *
+     * @author jonthoj
+     */
+    public static double updateDefaultPrice(ProductAmountDTO pdto,Double currentPrice) {
+        Long lowDiscountQuantity = 5L;
+        Long mediumDiscountQuantity = 10L;
+        Long maxDiscountQuantity = 20L;
+
+        Double lowSale = 0.05;
+        Double mediumSale = 0.10;
+        Double highSale = 0.20;
 
 
         //Will need to add a quantity property to ProductDTO and Entity
         // Add Get method for getting the current quantity
-        if (pdto.productQuantity >= lowDiscountQuantity) {
-            double lowDiscountPrice = pdto.defaultPrice - (pdto.defaultPrice * 0.05);
+        if (pdto.amount >= lowDiscountQuantity) {
+//            double lowDiscountPrice = pdto.defaultPrice - (pdto.defaultPrice * 0.05);
+            return currentPrice * (1.0-lowSale);
             // returning new lowDiscountPrice, which is 5% off.
             // Use the setter to updateDefault price ->  public void update(ProductDTO pdto)
             // Pass lowDiscountPrice as dpto.defaultPrice so it becomes this.defaultPrice;
 
             // return defaultPrice (as lowDiscountPrice)
         }
-        if (pdto.productQuantity >= mediumDiscountQuantity) {
-            double mediumDiscountPrice = pdto.defaultPrice - (pdto.defaultPrice * 0.10);
+        if (pdto.amount >= mediumDiscountQuantity) {
+            return currentPrice * (1.0-mediumSale);
+//            double mediumDiscountPrice = pdto.defaultPrice - (pdto.defaultPrice * 0.10);
             // returning new lowDiscountPrice, which is 10% off.
             // Use the setter to updateDefault price ->  public void update(ProductDTO pdto)
             // Pass lowDiscountPrice as dpto.defaultPrice so it becomes this.defaultPrice;
 
             // return defaultPrice (as mediumDiscountPrice)
         }
-        if (pdto.productQuantity >= maxDiscountQuantity) {
-            double maxDiscountPrice = pdto.defaultPrice - (pdto.defaultPrice * 0.20);
+        if (pdto.amount >= maxDiscountQuantity) {
+            return currentPrice * (1.0 - highSale);
+//            double maxDiscountPrice = pdto.defaultPrice - (pdto.defaultPrice * 0.20);
             // returning new lowDiscountPrice, which is 20% off.
             // Use the setter to updateDefault price ->  public void update(ProductDTO pdto)
             // Pass lowDiscountPrice as dpto.defaultPrice so it becomes this.defaultPrice;
@@ -595,7 +611,7 @@ public class ProductService
             // return defaultPrice (as maxDiscountPrice)
         }
 
-        return pdto.defaultPrice;
+        return currentPrice;
 
 
 

@@ -407,6 +407,7 @@ public class AccountService
         for(var pa : odto.productAmounts)
         {
             odto.price += pa.product.GetRealPrice(null,couponCode) * pa.amount;
+            odto.price = ProductService.updateDefaultPrice(pa,odto.price);
         }
         return odto;
     }
