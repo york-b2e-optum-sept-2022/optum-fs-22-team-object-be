@@ -164,6 +164,7 @@ public class AccountController
      * GET /api/user/cart
      * {@link AccountService#GetCart(RequestDTO)}
      * @param userID ID of user
+     * @param couponCode optional coupon to apply
      * @return The current cart of the user, with null total and null date
      */
     @GetMapping("cart")
