@@ -528,7 +528,6 @@ public class BackendProductTests
         addCoupon(adminID,Stream.of(p1,p2,p3,p4,p5),"code2",100L,1000L);
         addCoupon(adminID,Stream.of(p1,p2,p3,p4,p5),"code3",100L,1000L);
 
-        deleteCoupon(adminID,);
 
     }
 
