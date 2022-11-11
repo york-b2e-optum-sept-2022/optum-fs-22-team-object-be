@@ -276,26 +276,6 @@ public class JonBeTest {
 
         }, HttpStatus.BAD_REQUEST) : "userID is invalid";
     }
-
-    //**TODO Need to add to car to test checkout
-    @Test
-    public void testCheckout() throws Exception{
-        accountController.ClearAllExceptAdmin();
-        RequestDTO dto = new RequestDTO();
-        String adminID = login("admin", "admin");
-        String shopkeeperID1 = createUser(adminID, "shopkeeper1", "1234", AccountPermission.SHOPKEEPER);
-
-        getCheckout(shopkeeperID1);
-
-        assert ResponseFailureCheck( () ->
-        {
-            // Assert we must have items in cart to checkout
-            getCheckout(shopkeeperID1);
-
-        }, HttpStatus.BAD_REQUEST) : "Cannot check out with 0 items";
-
-
-    }
     //**TODO need to confirm how to add to cart
     @Test
     public void testAddToCart() throws ResponseStatusException{
@@ -327,6 +307,27 @@ public class JonBeTest {
         addToCart(shopkeeperUserId);
 
     }
+
+    //**TODO Need to add to car to test checkout
+    @Test
+    public void testCheckout() throws Exception{
+        accountController.ClearAllExceptAdmin();
+        RequestDTO dto = new RequestDTO();
+        String adminID = login("admin", "admin");
+        String shopkeeperID1 = createUser(adminID, "shopkeeper1", "1234", AccountPermission.SHOPKEEPER);
+
+        getCheckout(shopkeeperID1);
+
+        assert ResponseFailureCheck( () ->
+        {
+            // Assert we must have items in cart to checkout
+            getCheckout(shopkeeperID1);
+
+        }, HttpStatus.BAD_REQUEST) : "Cannot check out with 0 items";
+
+
+    }
+
 
     @Test
     public void testGetCart() throws Exception{
@@ -367,7 +368,7 @@ public class JonBeTest {
     public OrderDTO getCart(String userID) throws ResponseStatusException{
         RequestDTO dto = new RequestDTO();
         dto.userID = userID;
-        return this.accountController.GetCart(userID);
+        return this.accountController.GetCart(userID,null);
     }
 
     public void addToCart(String userID) throws ResponseStatusException{
@@ -385,7 +386,7 @@ public class JonBeTest {
     public void getCheckout(String userID) throws ResponseStatusException{
         RequestDTO dto = new RequestDTO();
         dto.userID = userID;
-        this.accountController.Checkout(dto);
+        this.accountController.Checkout(dto,null);
     }
 
     public String getPermission(String userID) throws ResponseStatusException{
