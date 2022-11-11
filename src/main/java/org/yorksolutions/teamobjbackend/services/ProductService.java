@@ -95,6 +95,8 @@ public class ProductService
         Coupon c = new Coupon();
         c.code = dto.code;
         List<Product> relevantProducts = IterableToList(this.productRepository.findAllWithCouponCode(c.code));
+        //remove products not given to us in list
+        relevantProducts.removeIf( (p) -> !dto.productIDs.contains(p.getProductID()));
         if(relevantProducts.size() == 0)
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"No products containing that coupon code were found");

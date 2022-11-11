@@ -510,6 +510,29 @@ public class BackendProductTests
         addCategory(adminID,"CategoryF",Stream.of(p3));
     }
 
+    @Test
+    public void TestCouponStuff()
+    {
+        this.accountController.ClearAllExceptAdmin();
+        this.productController.ClearAll();
+
+        String adminID = login("admin", "admin");
+
+        String p1 = createProduct(adminID, "p1", "p1desc", 1000L);
+        String p2 = createProduct(adminID, "p2", "p2desc", 2000L);
+        String p3 = createProduct(adminID,"p3","p3desc",2000L);
+        String p4 = createProduct(adminID,"p3","p3desc",2000L);
+        String p5 = createProduct(adminID,"p3","p3desc",2000L);
+
+        addCoupon(adminID,Stream.of(p1,p2,p3,p4,p5),"code1",100L,1000L);
+        addCoupon(adminID,Stream.of(p1,p2,p3,p4,p5),"code2",100L,1000L);
+        addCoupon(adminID,Stream.of(p1,p2,p3,p4,p5),"code3",100L,1000L);
+
+        deleteCoupon(adminID,);
+
+    }
+
+
     public PriceDTO GetPrices(String userID, String productID, Long date, String coupon)
     {
         return this.productController.GetPrice(productID,userID,coupon,date);
