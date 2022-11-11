@@ -101,7 +101,7 @@ public class ProductService
         }
         for(Product p : relevantProducts)
         {
-            p.getCouponList().removeIf( (coup)->coup.equals(c));
+            p.getCouponList().removeIf( (coup)->coup.code.equals(dto.code));
         }
 
         this.productRepository.saveAll(relevantProducts);
