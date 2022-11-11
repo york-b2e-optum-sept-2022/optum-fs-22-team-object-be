@@ -13,9 +13,11 @@ import org.yorksolutions.teamobjbackend.dtos.AccountInfo.AccountDTO;
 import org.yorksolutions.teamobjbackend.dtos.AccountInfo.CartChangeDTO;
 import org.yorksolutions.teamobjbackend.dtos.AccountInfo.OrderDTO;
 import org.yorksolutions.teamobjbackend.dtos.ProductDTO;
+import org.yorksolutions.teamobjbackend.dtos.ProductIDDTO;
 import org.yorksolutions.teamobjbackend.dtos.RequestDTO;
 import org.yorksolutions.teamobjbackend.entities.Account;
 import org.yorksolutions.teamobjbackend.entities.AccountPermission;
+import org.yorksolutions.teamobjbackend.entities.Product;
 import org.yorksolutions.teamobjbackend.services.AccountService;
 
 import java.util.ArrayList;
@@ -119,15 +121,15 @@ public class JonBeTest {
         String adminID1 = createUser(adminID,"admin1","1234",AccountPermission.ADMIN);
         getUsers(adminID, "shopkeeper1");
 
-        assert ResponseFailureCheck( () -> {
-            // We are asserting that if we try to search for a non-existent user, we will get an exception
-            getUsers(adminID, "admin25");
-
-        }, HttpStatus.NOT_FOUND) : "Customer does not exist.";
-//        updated to not found request
+//        assert ResponseFailureCheck( () -> {
+//            // We are asserting that if we try to search for a non-existent user, we will get an exception
+//            getUsers(adminID, "afsaf");
+//
+//        }, HttpStatus.BAD_REQUEST) : "Customer does not exist.";
+////        updated to not found request
         assert ResponseFailureCheck( () ->{
             getUsers(shopkeeperID1, "shopkeeper1");
-        }, HttpStatus.CONFLICT) : "Only admins can get other accounts";
+        }, HttpStatus.FORBIDDEN) : "Only admins can get other accounts";
 
     }
     //how to retrieve list of all accounts if parameters specify userID
@@ -137,30 +139,11 @@ public class JonBeTest {
         accountController.ClearAllExceptAdmin();
         String adminID = login("admin", "admin");
         //Test admin login
-        String customerID1 = createUser(null,"customer1","1234",null);
+        String customerID1 = createUser(null,"customer1","1234",AccountPermission.CUSTOMER);
         String shopkeeperID1 = createUser(adminID,"shopkeeper1","1234",AccountPermission.SHOPKEEPER);
-        String adminID1 = createUser(adminID,"admin1","1234",AccountPermission.ADMIN);
+        ;
 
         findUser(adminID, "customer1");
-        //testing finduser for each account
-
-        assert ResponseFailureCheck( () -> {
-            // We are asserting that if we try to search for a non-existent user, we will get an exception
-            findUser(adminID, "customer1new");
-        }, HttpStatus.NOT_FOUND) : "Email and/or user does not exist.";
-//        updated to not found request
-        assert ResponseFailureCheck( () ->{
-            findUser(shopkeeperID1, "shopkeeper1");
-        }, HttpStatus.FORBIDDEN) : "Only admins can get other accounts";
-        //returned 403 vs 409
-    }
-
-    @Test
-    public void testFindUser1() throws Exception {
-        String adminID = login("admin", "admin");
-        //Test admin login
-        String customerID1 = createUser(null,"customer12","1234",null);
-        findUser(adminID, "shopkeeper1");
         //testing finduser for each account
 
         assert ResponseFailureCheck( () -> {
@@ -175,10 +158,22 @@ public class JonBeTest {
     }
 
     @Test
+    public void testFindUser1() throws Exception {
+        String adminID = login("admin", "admin");
+        //Test admin login
+        String shopkeeperID1 = createUser(adminID,"shopkeeper1","1234",AccountPermission.SHOPKEEPER);
+//        String shopkeeperID1 = createUser(adminID,"shopkeeper1","1234",AccountPermission.SHOPKEEPER);
+        findUser(adminID, "shopkeeper1");
+        //testing finduser for each account
+
+    }
+
+    @Test
     public void testFindUser2() {
         String adminID = login("admin", "admin");
         //Test admin login
         String adminID1 = createUser(adminID,"admin1","1234",AccountPermission.ADMIN);
+//        String adminID1 = createUser(adminID,"admin1","1234",AccountPermission.ADMIN);
         findUser(adminID1, "admin1");
         //testing finduser for each account
         //already tested response failure above
@@ -258,7 +253,7 @@ public class JonBeTest {
         Account currentCustomer = findUser(adminID, "shopkeeper1");
         //Now we use getId() method from the Account entities.
         //Retrieve the userId and assign to String customerUserId
-        String customerUserId = currentCustomer.permissionAsString();
+        String customerPermission = currentCustomer.permissionAsString();
         // We pass the actual userId through to permissionAsString
         // getPermission calls the controller then service and uses the userId to retrieve orders.
         getPermission(adminID);
@@ -284,34 +279,47 @@ public class JonBeTest {
         //logging in
         String adminID = login("admin", "admin");
 
-        //creating users
-//        String customerID1 = createUser(null,"customer1","1234",null);
+        //creating shopkeepID1 and returning the ID as the value.
         String shopkeeperID1 = createUser(adminID,"shopkeeper1","1234",AccountPermission.SHOPKEEPER);
-//        String adminID1 = createUser(adminID,"admin1","1234",AccountPermission.ADMIN);
 
-        //Grab the shopkeepers userID since it is a randomly generated id
-        //This is used to pass into addToCart()
-        //We need this because the AddToCart function in the AccountService calls GetRequesterAccount, which needs userID
-        Account currentShopkeeper = findUser(adminID, "shopkeeper1");
-        String shopkeeperUserId = currentShopkeeper.permissionAsString();
+        //creating products using shopkeeperID1 ID.
+        //p1 holds the productId because the createProduct returns .getProductID().
+        String product1 = createProduct(shopkeeperID1, "jonNewProduct", "jonsFirstProduct", 2000L);
 
-        //Grab the admin1's userID since it is a randomly generated id
-//        Account currentAdmin = findUser(adminID, "admin1");
-//        String adminUserId = currentAdmin.permissionAsString();
+        // This is the amount we want to add to the cart.
+        Integer quantity = 10;
 
-        //creating products using shopkeeperID1 object
-        String p1 = createProduct(shopkeeperID1, "product1", "firstProduct", 1000L);
-//        String p2 = createProduct(adminID1, "product2", "secondProduct", 2000L);
+        // We pass in the userID (used in GetRequesterAccount)
+        // We pass productID (used
+        addToCart(shopkeeperID1, product1, quantity);
 
-        //We pass in the actual userID
-        addToCart(shopkeeperUserId);
+    }
+    @Test
+    public void testGetCart() throws Exception{
+        accountController.ClearAllExceptAdmin();
+        String adminID = login("admin", "admin");
+
+        String shopkeeperID1 = createUser(adminID,"shopkeeper1","1234",AccountPermission.SHOPKEEPER);
+        getCart(shopkeeperID1);
+
+        assert ResponseFailureCheck( () ->
+        {
+            // Asserting we must have a userID to request an account
+            getCart(null);
+
+        }, HttpStatus.BAD_REQUEST) : "userID must be provided";
+        assert ResponseFailureCheck( () ->
+        {
+            // Asserting we must have a valid userID
+            getCart("invalid");
+
+        }, HttpStatus.BAD_REQUEST) : "userID is invalid";
 
     }
 
-    //**TODO Need to add to car to test checkout
+    //**TODO Need to add to cart to test checkout
     @Test
     public void testCheckout() throws Exception{
-        accountController.ClearAllExceptAdmin();
         RequestDTO dto = new RequestDTO();
         String adminID = login("admin", "admin");
         String shopkeeperID1 = createUser(adminID, "shopkeeper1", "1234", AccountPermission.SHOPKEEPER);
@@ -328,31 +336,6 @@ public class JonBeTest {
 
     }
 
-
-    @Test
-    public void testGetCart() throws Exception{
-        accountController.ClearAllExceptAdmin();
-        String adminID = login("admin", "admin");
-        String adminID2 = createUser(adminID,"admin2","12345",AccountPermission.ADMIN);
-        String customerID1 = createUser(null,"customer1","1234",null);
-        String shopkeeperID1 = createUser(adminID,"shopkeeper1","1234",AccountPermission.SHOPKEEPER);
-        String adminID1 = createUser(adminID,"admin1","1234",AccountPermission.ADMIN);
-        getCart(adminID);
-
-        assert ResponseFailureCheck( () ->
-        {
-            // Asserting we must have a userID to request an account
-            getCart(null);
-
-        }, HttpStatus.BAD_REQUEST) : "userID must be provided";
-        assert ResponseFailureCheck( () ->
-        {
-            // Asserting we must have a valid userID
-            getCart("invalid");
-
-        }, HttpStatus.BAD_REQUEST) : "userID is invalid";
-
-    }
     //Functions to run tests
     public void deleteUser(String userID, String email, String password, AccountPermission permission) throws ResponseStatusException{
         AccountDTO dto = new AccountDTO();
@@ -364,15 +347,16 @@ public class JonBeTest {
         this.accountController.DeleteAccount(dto);
     }
 
-
     public OrderDTO getCart(String userID) throws ResponseStatusException{
         RequestDTO dto = new RequestDTO();
         dto.userID = userID;
         return this.accountController.GetCart(userID,null);
     }
 
-    public void addToCart(String userID) throws ResponseStatusException{
+    public void addToCart(String userID, String productID, Integer quantity) throws ResponseStatusException{
         CartChangeDTO dto = new CartChangeDTO();
+        dto.productID = productID;
+        dto.number = quantity;
         dto.userID = userID;
         this.accountController.ChangeCart(dto);
     }
@@ -453,7 +437,7 @@ public class JonBeTest {
         }
     }
 
-    public String createProduct(String userID, String productName, String description,Long date) throws ResponseStatusException
+    public String createProduct(String userID, String productName, String description, Long date) throws ResponseStatusException
     {
         ProductDTO dto = new ProductDTO();
         dto.defaultPrice = 1.0;
