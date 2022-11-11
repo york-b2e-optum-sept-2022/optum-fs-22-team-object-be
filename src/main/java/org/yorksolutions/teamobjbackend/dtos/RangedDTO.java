@@ -9,6 +9,12 @@ package org.yorksolutions.teamobjbackend.dtos;
 @SuppressWarnings("unused")
 public class RangedDTO extends ProductIDDTO
 {
+    /**
+     * Start date of the range in milliseconds since epoch
+     */
     public Long startDate;
+    /**
+     * End date of the range in milliseconds since epoch
+     */
     public Long endDate;
 }

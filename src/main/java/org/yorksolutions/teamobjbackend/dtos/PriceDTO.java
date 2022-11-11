@@ -2,7 +2,7 @@ package org.yorksolutions.teamobjbackend.dtos;
 
 /**
  * DTO containing all price data of a product.
- * This is sent from server -> client, unlike others
+ * This is sent from server to client, unlike others
  * @author Max Feige
  */
 public class PriceDTO

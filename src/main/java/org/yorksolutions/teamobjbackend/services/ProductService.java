@@ -14,13 +14,12 @@ import org.yorksolutions.teamobjbackend.repositories.AccountRepository;
 import org.yorksolutions.teamobjbackend.repositories.ProductRepository;
 import org.yorksolutions.teamobjbackend.utils.YorkUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Service used to manage product and product related information
  * All DTOs contain a userID field to authorize
+ * @author Max Feige
  */
 @Service
 public class ProductService
@@ -54,7 +53,7 @@ public class ProductService
     /**
      * Edit a product
      * @param dto DTO containing all product data to be updated - fields set to null ignored.  Must provide productID
-     * @return
+     * @return returns the product with the new information
      * @throws ResponseStatusException NOT_FOUND on unknown productID BAD_REQUEST on invalid productID, FORBIDDEN on bad userID
      */
     public Product EditProduct(ProductDTO dto) throws ResponseStatusException
@@ -236,7 +235,7 @@ public class ProductService
 
     /**
      * Adds a category to a list of products
-     * @param dto
+     * @param dto DTO containnig category name and list of products to add said category to
      * @throws ResponseStatusException FORBIDDEN on bad userID, CONFLICT on already existing product, NOT_FOUND on some product IDs being non-existent
      */
     public void AddCategories(CategoryDTO dto) throws ResponseStatusException
@@ -289,6 +288,14 @@ public class ProductService
     }
 
     /**
+     * Gets all categories
+     * @return list of all categories (no duplicates
+     */
+    public List<String> GetAllCategories()
+    {
+        return IterableToList(this.productRepository.getAllCategories());
+    }
+    /**
      * Gets all products in a category
      * @param category Category name
      * @return List of products in give ncategory (could be empty)
@@ -340,7 +347,7 @@ public class ProductService
     /**
      * Gets all categories of a given product
      * @param dto DTO containing the product ID you want the categories of
-     * @return
+     * @return returns all categories of given product
      * @throws ResponseStatusException NOT_FOUND on invalid productID
      */
     public List<String> GetCategories(ProductIDDTO dto)
@@ -353,7 +360,7 @@ public class ProductService
     /**
      * Gets all coupons that a product has
      * @param dto DTO containing the product ID you want the coupons for
-     * @return
+     * @return all coupons for given product
      * @throws ResponseStatusException NOT_FOUND on invalid productID
      */
     public List<Coupon> GetCoupons(ProductIDDTO dto) throws ResponseStatusException
@@ -418,9 +425,15 @@ public class ProductService
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"Account id requesting this operation is either non-existent or has insufficient permissions");
         }
     }
-    public List<Product> GetProducts (String userID) throws ResponseStatusException
+
+    /**
+     * Gets all products
+     * @param userID id of user (optional), obfuscates if insufficient level
+     * @return list of products
+     */
+    public List<Product> GetProducts (String userID)
     {
-        List<Product> products = IterableToList(this.productRepository.findAll());
+        List<Product> products = IterableToList(this.productRepository.findAllByDiscontinuedIsFalse());
         boolean obfs = true;
         if(userID != null)
         {

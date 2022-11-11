@@ -240,6 +240,7 @@ public class BackendProductTests
         this.addCategory(adminID, "Category3", Stream.of(p1, p2));
 
 
+
         assert ResponseFailureCheck(() ->
         {
             this.addCategory(customerID1, "Category5", Stream.of(p1, p2));
@@ -478,7 +479,36 @@ public class BackendProductTests
 
 
     }
+    @Test
+    public void TestCategoriesGet()
+    {
 
+        assert this.productController.GetAllCategories().size() == 6;
+
+
+    }
+    @Test
+    public void TestMakingCategories()
+    {
+        this.accountController.ClearAllExceptAdmin();
+        this.productController.ClearAll();
+
+        String adminID = login("admin", "admin");
+        String customerID1 = createUser(null, "customer", "1234", null);
+        String shopkeeperID1 = createUser(adminID, "shopkeeper", "1234", AccountPermission.SHOPKEEPER);
+
+        String p1 = createProduct(shopkeeperID1, "p1", "p1desc", 1000L);
+        String p2 = createProduct(adminID, "p2", "p2desc", 2000L);
+        String p3 = createProduct(adminID,"p3","p3desc",2000L);
+
+
+        addCategory(adminID,"CategoryA",Stream.of(p1,p2,p3));
+        addCategory(adminID,"CategoryB",Stream.of(p1,p3));
+        addCategory(adminID,"CategoryC",Stream.of(p2,p3));
+        addCategory(adminID,"CategoryD",Stream.of(p1));
+        addCategory(adminID,"CategoryE",Stream.of(p2));
+        addCategory(adminID,"CategoryF",Stream.of(p3));
+    }
 
     public PriceDTO GetPrices(String userID, String productID, Long date, String coupon)
     {
