@@ -178,8 +178,8 @@ public class JonBeTest {
     public void testFindUser2() {
         String adminID = login("admin", "admin");
         //Test admin login
-
-        findUser(adminID, "admin1");
+        String adminID1 = createUser(adminID,"admin1","1234",AccountPermission.ADMIN);
+        findUser(adminID1, "admin1");
         //testing finduser for each account
         //already tested response failure above
     }
