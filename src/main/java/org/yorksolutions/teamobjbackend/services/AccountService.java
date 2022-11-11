@@ -221,8 +221,9 @@ public class AccountService
             //if admin is attempting to delete their own account thats bad
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"You cannot delete your own account as an admin");
         }
-        this.productOrderRepository.delete(targetAccount.get().getCart());
         this.accountRepository.delete(targetAccount.get());
+        this.productOrderRepository.delete(targetAccount.get().getCart());
+
 
 
     }

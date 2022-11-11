@@ -585,12 +585,6 @@ public class ProductService
         return pdto.defaultPrice;
 
 
-        //    Showing as INVALID, but need to re-map to new default price
-        //    if quantity is 0 to 4, no discount
-        //    if quantity is 5-9, 5% discount
-        //    if quantity is 10-19, 10% discount
-        //    if quantity is 20+, 20% discount
-
 
     }
 
