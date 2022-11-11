@@ -14,9 +14,7 @@ import org.yorksolutions.teamobjbackend.repositories.AccountRepository;
 import org.yorksolutions.teamobjbackend.repositories.ProductRepository;
 import org.yorksolutions.teamobjbackend.utils.YorkUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Service used to manage product and product related information
@@ -289,6 +287,14 @@ public class ProductService
         this.productRepository.saveAll(products);
     }
 
+    /**
+     * Gets all categories
+     * @return list of all categories (no duplicates
+     */
+    public List<String> GetAllCategories()
+    {
+        return IterableToList(this.productRepository.getAllCategories());
+    }
     /**
      * Gets all products in a category
      * @param category Category name

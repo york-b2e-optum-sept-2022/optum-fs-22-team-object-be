@@ -11,6 +11,7 @@ import org.yorksolutions.teamobjbackend.entities.Product;
 import org.yorksolutions.teamobjbackend.services.ProductService;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Endpoints for products
@@ -138,17 +139,28 @@ public class ProductController
     }
 
     /**
-     * GET /api/product/get/allCategories
+     * GET /api/product/get/inCategory
      * {@link ProductService#GetProductsInCategory(String)}
      * @param categoryName  name of category
      * @return All products in give ncategory
      */
-    @GetMapping("get/allCategories")
+    @GetMapping("get/inCategory")
     public List<Product> GetProductsInCategory(@RequestParam("categoryName") String categoryName)
     {
         CategoryDTO dto = new CategoryDTO();
         dto.categoryName = categoryName;
         return this.productService.GetProductsInCategory(dto.categoryName);
+    }
+
+    /**
+     * GET /api/product/get/categories/all
+     * Get all product categories
+     * @return List of all categories, no duplicates
+     */
+    @GetMapping("get/categories/all")
+    public List<String> GetAllCategories()
+    {
+        return this.productService.GetAllCategories();
     }
 
     /**

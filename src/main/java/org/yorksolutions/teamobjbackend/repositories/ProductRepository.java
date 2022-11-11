@@ -19,6 +19,10 @@ public interface ProductRepository extends CrudRepository<Product,String>
     Iterable<Product> findAllByDiscontinuedIsFalse();
     Iterable<Product> findAllByProductIDIn(Iterable<String> productIDs);
 
+
+    @Query(value = "SELECT DISTINCT categories FROM product_categories",nativeQuery = true)
+    Iterable<String> getAllCategories();
+
     /**
      * Runs the native query <code>SELECT * FROM product WHERE productid IN (SELECT product_productid FROM product_coupon_list WHERE code = :code)</code>
      * @param code the coupon code to access
