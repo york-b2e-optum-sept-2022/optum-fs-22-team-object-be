@@ -306,11 +306,6 @@ public class AccountService
         var orderDTO = GetCart(dto);
 
         orderDTO.date = System.currentTimeMillis();
-        orderDTO.price = 0.0;
-        for(var pa : orderDTO.productAmounts)
-        {
-            orderDTO.price += pa.product.GetRealPrice(null,couponCode) * pa.amount;
-        }
         var cart = acc.getCart();
         cart.setDate(orderDTO.date);
         cart.setTotal(orderDTO.price);
@@ -394,6 +389,10 @@ public class AccountService
      */
     public OrderDTO GetCart(RequestDTO dto) throws ResponseStatusException
     {
+        return GetCart(dto,null);
+    }
+    public OrderDTO GetCart(RequestDTO dto, String couponCode) throws ResponseStatusException
+    {
         Account acc = GetRequesterAccount(dto);
         Iterable<Product> correspondingProducts = this.productRepository.findAllByProductIDIn(acc.getCart().getProductsOrdered().keySet());
         HashMap<String, Product> prods = new HashMap<>();
@@ -401,8 +400,16 @@ public class AccountService
         {
             prods.put(p.getProductID(),p);
         }
-        return OrderDTO.FromProductOrder(acc.getCart(),prods);
+        //get cart assumes null coupon code
+        OrderDTO odto= OrderDTO.FromProductOrder(acc.getCart(),prods);
+        odto.price = 0.0;
+        for(var pa : odto.productAmounts)
+        {
+            odto.price += pa.product.GetRealPrice(null,couponCode) * pa.amount;
+        }
+        return odto;
     }
+
 
     public void TestClear()
     {
