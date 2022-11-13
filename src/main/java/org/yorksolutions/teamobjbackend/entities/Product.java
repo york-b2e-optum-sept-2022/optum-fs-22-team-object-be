@@ -245,11 +245,19 @@ public class Product
     @JsonGetter("CurrentRealPrice")
     public Double JsonGetRealPrice()
     {
+        if(defaultPrice == null)
+        {
+            return null;
+        }
         return GetRealPrice(System.currentTimeMillis(),null);
     }
     @JsonGetter("CurrentListPrice")
     public Double JsonGetListPrice()
     {
+        if(defaultPrice == null)
+        {
+            return null;
+        }
         return GetBasePrice(System.currentTimeMillis());
     }
 }

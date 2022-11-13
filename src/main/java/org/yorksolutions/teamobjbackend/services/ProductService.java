@@ -454,7 +454,8 @@ public class ProductService
         {
             for(Product p : products)
             {
-                p.Obfuscate();;
+                //TODO: Obfsucate properly
+//                p.Obfuscate();;
             }
         }
         return products;
